@@ -1,1 +1,1 @@
-# football-data-viz-d3 Infovis
+# football-data-viz-d3 Info vis
