@@ -1,3 +1,5 @@
+import { scatterPlot } from "./scatterPlot.js";
+
 // read the CSV
 var players_data = await d3.csv("../data/2021-2022-player-stats-refined.csv", data => {
     return data;
@@ -12,8 +14,7 @@ console.log(acronyms);
 
 
 function showDashboard() {
-    scatterPlot(players_data)
-    starPlot(players_data, acronyms);
+    scatterPlot(players_data);
 }
 
 showDashboard();
