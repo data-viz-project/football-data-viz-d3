@@ -14,7 +14,7 @@ console.log(acronyms);
 
 
 function showDashboard() {
-    scatterPlot(players_data);
+    scatterPlot(players_data, acronyms);
 }
 
 showDashboard();
