@@ -1,22 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Data Viz</title>
-        <script src="https://d3js.org/d3.v7.min.js"></script>
-        <link rel="stylesheet" href="css/style.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Viz</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
 
-    </head>
+</head>
 
-    <body>
-        <div id="dataviz"></div>
-        <div id="field"></div>
-        <script type="module" src="js/starPlot.js"></script>
-        <script type="module" src="js/scatterPlot.js"></script>
-        <script type="module" src="js/soccerField.js"></script>
-        <script type="module" src="js/index.js"></script>
-    </body>
+<body>
+    <div id="dataviz"></div>
+    <div id="myTeam">
+        <div id="players">
+            <h1>Lista Giocatori di Calcio</h1>
+            <div id="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Età</th>
+                            <th>Squadra</th>
+                            <th>Posizione</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="field">
+
+        </div>
+    </div>
+
+    <script type="module" src="js/starPlot.js"></script>
+    <script type="module" src="js/scatterPlot.js"></script>
+    <script type="module" src="js/myTeam.js"></script>
+    <script type="module" src="js/index.js"></script>
+</body>
 
 </html>

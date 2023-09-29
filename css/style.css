@@ -5,3 +5,11 @@ body {
     justify-content: center;
     align-items: center;
 }
+
+#myTeam {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}

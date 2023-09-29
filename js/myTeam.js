@@ -10,7 +10,7 @@ var margin = {
     height = (plotscale * (68 / 105) - margin.top - margin.bottom);
 console.log(68 / 105, height / width)
 
-function soccerField(attk_data, cen_data, dif_data) {
+function soccerField() {
     var x = d3.scaleLinear()
         .domain([0, 100])
         .range([0, width]);
@@ -138,4 +138,34 @@ function soccerField(attk_data, cen_data, dif_data) {
             .attr("id", "player" + index); // Aggiungi un ID univoco per ciascun giocatore
     });
 }
-export { soccerField };
+
+function players(attk_data, cen_data, dif_data) {
+    // Supponiamo di avere una lista di giocatori come dati
+    var giocatori = [
+        { nome: "Cristiano Ronaldo", eta: 36, squadra: "Manchester United", posizione: "Attaccante" },
+        { nome: "Lionel Messi", eta: 34, squadra: "Paris Saint-Germain", posizione: "Centrocampista" },
+        { nome: "Neymar Jr.", eta: 29, squadra: "Paris Saint-Germain", posizione: "Attaccante" },
+        // Aggiungi altri giocatori qui...
+    ];
+
+    // Seleziona il corpo della tabella
+    var tbody = d3.select("tbody");
+
+    // Crea righe per ogni giocatore
+    var rows = tbody.selectAll("tr")
+        .data(giocatori)
+        .enter()
+        .append("tr");
+
+    // Aggiungi celle con i dati del giocatore
+    rows.append("td").text(function (d) { return d.nome; });
+    rows.append("td").text(function (d) { return d.eta; });
+    rows.append("td").text(function (d) { return d.squadra; });
+    rows.append("td").text(function (d) { return d.posizione; });
+}
+
+function myTeam(attk_data, cen_data, dif_data) {
+    soccerField();
+    players(attk_data, cen_data, dif_data);
+}
+export { myTeam };
