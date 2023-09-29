@@ -1,7 +1,7 @@
 import { scatterPlot } from "./scatterPlot.js";
 
 // read the CSV
-var players_data = await d3.csv("../data/2021-2022-player-stats-refined.csv", data => {
+var players_data = await d3.csv("../data/playersFW.csv", data => {
     return data;
 });
 console.log(players_data);

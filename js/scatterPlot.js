@@ -25,7 +25,7 @@ function scatterPlot(players_data, acronyms) {
 
     // Add Y axis
     const y = d3.scaleLinear()
-        .domain([0, 1])
+        .domain([0, 1.5])
         .range([height, 0]);
     svg.append("g")
         .attr("class", "axis")
