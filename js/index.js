@@ -1,20 +1,28 @@
 import { scatterPlot } from "./scatterPlot.js";
+import { soccerField } from "./soccerField.js";
 
 // read the CSV
-var players_data = await d3.csv("../data/playersFW.csv", data => {
+var attk_data = await d3.csv("../data/Serie A/attk.csv", data => {
     return data;
 });
-console.log(players_data);
+
+var cen_data = await d3.csv("../data/Serie A/cen.csv", data => {
+    return data;
+});
+
+var dif_data = await d3.csv("../data/Serie A/dif.csv", data => {
+    return data;
+});
 
 // map to explain features inside the csv 
 var acronyms = await d3.json("../data/acronyms.json", data => {
     return data;
 });
-console.log(acronyms);
 
 
 function showDashboard() {
-    scatterPlot(players_data, acronyms);
+    scatterPlot(attk_data, acronyms);
+    soccerField(attk_data, cen_data, dif_data);
 }
 
 showDashboard();
