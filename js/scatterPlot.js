@@ -3,18 +3,7 @@ const margin = { top: 10, right: 30, bottom: 50, left: 80 },
     height = 600 - margin.top - margin.bottom;
 
 function scatterPlot(players_data, acronyms) {
-    // pick the max value in a data feature
-    //var max_value = d3.max(players_data, function (d) { return d["Goals"]; });
-
-    //for (var i = 0; i < players_data.length; i++) {
-    //    if (players_data[i].Goals == max_value) {
-    //        console.log("max value is " + max_value + " and is in " + players_data[i].Player);
-    //    }
-    //}
-
-    //console.log(max_value);
-
-    let x_label = "Player";
+    let x_label = "Shots";
     let y_label = "Goals";
 
     // append the svg object to the body of the page
@@ -27,7 +16,7 @@ function scatterPlot(players_data, acronyms) {
             `translate(${margin.left}, ${margin.top})`);
     // Add X axis
     const x = d3.scaleLinear()
-        .domain([0, 3000])
+        .domain([0, 7.5])
         .range([0, width]);
     svg.append("g")
         .attr("class", "axis")
@@ -36,7 +25,7 @@ function scatterPlot(players_data, acronyms) {
 
     // Add Y axis
     const y = d3.scaleLinear()
-        .domain([0, 400000])
+        .domain([0, 1])
         .range([height, 0]);
     svg.append("g")
         .attr("class", "axis")
@@ -60,5 +49,48 @@ function scatterPlot(players_data, acronyms) {
         .attr("y", -margin.left + 20)
         .attr("x", height / -3)
         .text(acronyms[y_label])
+
+    var tooltip = d3.select("#dataviz")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "1px")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+
+    var mouseover = function (_) {
+        tooltip
+            .style("opacity", 1)
+    }
+
+    var mousemove = function (event, d) {
+        tooltip
+            .html(acronyms["Player"] + ": " + d.Player)
+    }
+
+    // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
+    var mouseleave = function (_) {
+        tooltip
+            .transition()
+            .duration(200)
+            .style("opacity", 0)
+    }
+
+    // Add dots
+    svg.append('g')
+        .selectAll("dot")
+        .data(players_data)
+        .enter()
+        .append("circle")
+        .attr("cx", function (d) { return x(d.Shots); })
+        .attr("cy", function (d) { return y(d.Goals); })
+        .attr("r", 5)
+        .style("fill", "black")
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
+
 }
 export { scatterPlot };
