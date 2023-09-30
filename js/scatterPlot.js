@@ -58,7 +58,7 @@ function scatterPlot(players_data, acronyms) {
         .style("border", "solid")
         .style("border-width", "1px")
         .style("border-radius", "5px")
-        .style("padding", "10px")
+        .style("padding", "10px");
 
     var mouseover = function (_) {
         tooltip
@@ -66,8 +66,11 @@ function scatterPlot(players_data, acronyms) {
     }
 
     var mousemove = function (event, d) {
+        console.log(d3.select(this).attr("cy") + "px")
         tooltip
             .html(acronyms["Player"] + ": " + d.Player)
+            .style('left', event.pageX + 'px')
+            .style('top', event.pageY - 28 + 'px');
     }
 
     // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again

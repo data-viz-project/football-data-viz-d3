@@ -13,3 +13,8 @@ body {
     align-items: center;
     flex-wrap: wrap;
 }
+
+.tooltip {
+    position: absolute;
+    pointer-events: none;
+}
