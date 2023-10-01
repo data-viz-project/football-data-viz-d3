@@ -1,5 +1,6 @@
 import { scatterPlot } from "./scatterPlot.js";
 import { myTeam } from "./myTeam.js";
+import { starPlot } from "./starPlot.js";
 
 // read the CSV
 var attk_data = await d3.csv("../data/Serie A/attk.csv", data => {
@@ -22,6 +23,7 @@ var acronyms = await d3.json("../data/acronyms.json", data => {
 
 function showDashboard() {
     scatterPlot(attk_data, acronyms);
+    starPlot(attk_data);
     myTeam(attk_data, cen_data, dif_data);
 }
 
