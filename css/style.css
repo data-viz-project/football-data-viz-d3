@@ -18,3 +18,22 @@ body {
     position: absolute;
     pointer-events: none;
 }
+
+#dataviz {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-item {
+    display: flex;
+    margin: 5px;
+}
