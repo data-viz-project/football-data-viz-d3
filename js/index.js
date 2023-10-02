@@ -23,7 +23,7 @@ var acronyms = await d3.json("../data/acronyms.json", data => {
 
 function showDashboard() {
     scatterPlot(attk_data, acronyms);
-    starPlot(attk_data);
+    starPlot();
     myTeam(attk_data, cen_data, dif_data);
 }
 

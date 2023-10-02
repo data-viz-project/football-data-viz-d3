@@ -2,7 +2,7 @@ const margin = { top: 10, right: 30, bottom: 50, left: 80 },
     width = 1300 - margin.left - margin.right,
     height = 600 - margin.top - margin.bottom;
 
-var position = "attacco"
+var position = "attacco";
 
 var calculateMinMaxValue = function (feature, data) {
     var min = d3.min(data, function (d) {
@@ -12,41 +12,50 @@ var calculateMinMaxValue = function (feature, data) {
         return d[feature];
     });
     return [min, max];
-}
+};
 
+var tooltip = d3.select("#dataviz")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style("padding", "10px");
 
 var mouseover = function (d) {
     tooltip
-        .style("opacity", 1)
-}
-
-var mousemove = function (event, d) {
-    tooltip
-        .html(acronyms["Player"] + ": " + d.Player)
-        .style('left', event.pageX + 'px')
-        .style('top', event.pageY - 28 + 'px');
-
-    tooltip.append("div")
-        .html(acronyms["Shots"] + ": " + d[x_label])
-        .style('left', event.pageX + 'px')
-        .style('top', event.pageY + 8 + 'px'); // Puoi regolare la posizione verticale a tuo piacimento
-
-    tooltip.append("div")
-        .html(acronyms["Goals"] + ": " + d.Goals)
-        .style('left', event.pageX + 'px')
-        .style('top', event.pageY + 8 + 'px'); // Puoi regolare la posizione verticale a tuo piacimento
-}
+        .style("opacity", 1);
+};
 
 var mouseleave = function (_) {
     tooltip
         .transition()
         .duration(200)
-        .style("opacity", 0)
-}
-
+        .style("opacity", 0);
+};
 
 function scatterPlot(players_data, acronyms) {
     let y_label = "Goals";
+    let x_label = "Shots";
+
+    var mousemove = function (event, d) {
+        tooltip
+            .html(acronyms["Player"] + ": " + d.Player)
+            .style('left', event.pageX + 'px')
+            .style('top', event.pageY - 28 + 'px');
+
+        tooltip.append("div")
+            .html(acronyms["Shots"] + ": " + d[x_label])
+            .style('left', event.pageX + 'px')
+            .style('top', event.pageY + 8 + 'px'); // Puoi regolare la posizione verticale a tuo piacimento
+
+        tooltip.append("div")
+            .html(acronyms["Goals"] + ": " + d.Goals)
+            .style('left', event.pageX + 'px')
+            .style('top', event.pageY + 8 + 'px'); // Puoi regolare la posizione verticale a tuo piacimento
+    };
 
     // append the svg object to the body of the page
     const svg = d3.select("#dataviz")
@@ -58,7 +67,7 @@ function scatterPlot(players_data, acronyms) {
             `translate(${margin.left}, ${margin.top})`);
 
     var points = svg.append('g')
-        .selectAll("points")
+        .selectAll("points");
 
     function drawPoints(x_label, y_label = "Goals") {
         var minMax = calculateMinMaxValue(x_label, players_data)
