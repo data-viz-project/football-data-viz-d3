@@ -2,6 +2,7 @@ const margin = { top: 10, right: 30, bottom: 50, left: 80 },
     width = 1300 - margin.left - margin.right,
     height = 600 - margin.top - margin.bottom;
 
+// variable to change set of features
 var position = "attacco";
 
 var calculateMinMaxValue = function (feature, data) {
@@ -37,22 +38,22 @@ var mouseleave = function (_) {
 };
 
 function scatterPlot(players_data, acronyms) {
-    let y_label = "Goals";
-    let x_label = "Shots";
-
     var mousemove = function (event, d) {
+        let x_label = d3.select("#x-axis").property("value")
+        let y_label = d3.select("#y-axis").property("value")
+
         tooltip
             .html(acronyms["Player"] + ": " + d.Player)
             .style('left', event.pageX + 'px')
             .style('top', event.pageY - 28 + 'px');
 
         tooltip.append("div")
-            .html(acronyms["Shots"] + ": " + d[x_label])
+            .html(acronyms[x_label] + ": " + d[x_label])
             .style('left', event.pageX + 'px')
             .style('top', event.pageY + 8 + 'px'); // Puoi regolare la posizione verticale a tuo piacimento
 
         tooltip.append("div")
-            .html(acronyms["Goals"] + ": " + d.Goals)
+            .html(acronyms[y_label] + ": " + d[y_label])
             .style('left', event.pageX + 'px')
             .style('top', event.pageY + 8 + 'px'); // Puoi regolare la posizione verticale a tuo piacimento
     };
@@ -69,24 +70,24 @@ function scatterPlot(players_data, acronyms) {
     var points = svg.append('g')
         .selectAll("points");
 
-    function drawPoints(x_label, y_label = "Goals") {
-        var minMax = calculateMinMaxValue(x_label, players_data)
+    function drawPoints(x_label, y_label) {
+        let minMax = calculateMinMaxValue(x_label, players_data)
 
         // Add X axis
         const x = d3.scaleLinear()
             .domain([minMax[0], minMax[1]])
             .range([0, width]);
 
-        svg.select(".axis-x").remove();
+        svg.selectAll(".axis").remove();
 
         // Append a new X axis group
         var axis_x = svg.append("g")
-            .attr("class", "axis-x")
+            .attr("class", "axis")
             .attr("transform", `translate(0, ${height})`)
             .attr("opacity", "0"); // Start with opacity set to 0
 
         // Transition the opacity of the old axis to 0
-        d3.select(".axis-x")
+        d3.select(".axis")
             .transition()
             .duration(1000)
             .attr("opacity", "0")
@@ -98,20 +99,27 @@ function scatterPlot(players_data, acronyms) {
             .attr("opacity", "1")
             .call(d3.axisBottom(x));
 
-        var minMax = calculateMinMaxValue(y_label, players_data)
+        minMax = calculateMinMaxValue(y_label, players_data)
         // Add Y axis
         const y = d3.scaleLinear()
             .domain([minMax[0], minMax[1]])
             .range([height, 0]);
-        svg.append("g")
+
+        let axis_y = svg.append("g")
             .attr("class", "axis")
+            .attr("opacity", "0"); // Start with opacity set to 0
+
+        axis_y
+            .transition()
+            .duration(1000)
+            .attr("opacity", "1")
             .call(d3.axisLeft(y));
 
         // Seleziona tutti i gruppi con classe "axis" all'interno dell'elemento SVG
         svg.selectAll("g.axis")
             .selectAll("line")
 
-        svg.select(".axis-label").remove();
+        svg.selectAll(".axis-label").remove();
 
         // Add X axis label:
         svg.append("text")
@@ -123,6 +131,7 @@ function scatterPlot(players_data, acronyms) {
 
         // Y axis label:
         svg.append("text")
+            .attr("class", "axis-label")
             .attr("text-anchor", "end")
             .attr("transform", "rotate(-90)")
             .attr("y", -margin.left + 20)
@@ -153,11 +162,12 @@ function scatterPlot(players_data, acronyms) {
             .transition()
             .duration(1000)
             .attr("cx", function (d) { return x(d[x_label]); })
-            .attr("cy", function (d) { return y(d.Goals); })
+            .attr("cy", function (d) { return y(d[y_label]); })
             .attr("r", 5)
     }
 
     const dropMenuX = d3.select("#x-axis");
+    const dropMenuY = d3.select("#y-axis");
 
     dropMenuX
         .selectAll("option")
@@ -168,9 +178,21 @@ function scatterPlot(players_data, acronyms) {
         .text(d => d);
 
     dropMenuX.on('change', function (event) {
-        drawPoints(event.target.value);
+        drawPoints(event.target.value, dropMenuY.property('value'));
     });
 
-    drawPoints(dropMenuX.property('value'));
+    dropMenuY
+        .selectAll("option")
+        .data(function () { if (position == "attacco") return ["Shots", "Goals"]; })
+        .enter()
+        .append("option")
+        .attr("value", d => d)
+        .text(d => d);
+
+    dropMenuY.on('change', function (event) {
+        drawPoints(dropMenuX.property('value'), event.target.value);
+    });
+
+    drawPoints(dropMenuX.property('value'), dropMenuY.property('value'));
 }
 export { scatterPlot };
