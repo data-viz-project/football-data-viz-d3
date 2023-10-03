@@ -42,6 +42,13 @@ function scatterPlot(players_data, acronyms) {
         let x_label = d3.select("#x-axis").property("value")
         let y_label = d3.select("#y-axis").property("value")
 
+        d3.selectAll("circle")
+            .style("fill", "white")
+
+        //change color to a point
+        d3.select(this)
+            .style("fill", "green");
+
         tooltip
             .html(acronyms["Player"] + ": " + d.Player)
             .style('left', event.pageX + 'px')
@@ -152,8 +159,9 @@ function scatterPlot(players_data, acronyms) {
         // Add dots
         points = points
             .data(players_data)
-            .join('circle')
-            .style("fill", "black")
+            .join("circle")
+            .style("fill", "white")
+            .style("stroke", "black")
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseleave", mouseleave)
@@ -163,7 +171,7 @@ function scatterPlot(players_data, acronyms) {
             .duration(1000)
             .attr("cx", function (d) { return x(d[x_label]); })
             .attr("cy", function (d) { return y(d[y_label]); })
-            .attr("r", 5)
+            .attr("r", 7)
     }
 
     const dropMenuX = d3.select("#x-axis");
