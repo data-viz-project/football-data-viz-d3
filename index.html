@@ -7,20 +7,35 @@
         <title>Data Viz</title>
         <script src="https://d3js.org/d3.v7.min.js"></script>
         <link rel="stylesheet" href="css/style.css">
-
     </head>
 
     <body>
+        <div id="header">
+            <h1>Football DataViz</h1>
+        </div>
         <div id="dataviz">
             <div class="flex-container">
-                <div class="flex-item">
-                    <p>X-Axis</p>
+                <div class="data-interaction">
+                    <div class="flex-item">
+                        <p>Pick the league</p>
+                    </div>
+                    <div class="flex-item"><select id="pick-league"></select></div>
                 </div>
-                <div class="flex-item"><select id="x-axis"></select></div>
-                <div class="flex-item">
-                    <p>Y-Axis</p>
+
+                <div class="axis-interaction">
+                    <div class="flex-item">
+                        <p>X-Axis</p>
+                    </div>
+                    <div class="flex-item"><select id="x-axis"></select></div>
+
+                    <div class="flex-item">
+                        <p>Y-Axis</p>
+                    </div>
+                    <div class="flex-item"><select id="y-axis"></select></div>
                 </div>
-                <div class="flex-item"><select id="y-axis"></select></div>
+
+
+
             </div>
         </div>
         <div id="starPlot"></div>

@@ -2,8 +2,21 @@ const margin = { top: 10, right: 30, bottom: 50, left: 80 },
     width = 1300 - margin.left - margin.right,
     height = 600 - margin.top - margin.bottom;
 
+let common_features = ["Player", "Squad", "Comp", "MP", "Min", "Pos"]
+
+var forward_features = ["Goals", "Shots", "SoT", "G/Sh", "G/SoT", "ShoDist", "GCA", "SCA", "Off", "PKwon", "ScaDrib", "Assists",
+    "ScaPassLive", "Car3rd", "ScaFld", "Carries", "CarTotDist", "CarPrgDist", 'CPA', "CarMis", "CarDis"]
+
+var midfielder_features = ["Goals", "PasTotCmp", "PasTotCmp%", "PasTotDist", "PasTotPrgDist", "Assists", "PasAss", "Pas3rd", "Crs", "PasCmp",
+    "PasOff", "PasBlocks", "SCA", "ScaPassLive", "ScaPassDead", "ScaDrib", "ScaSh", "ScaFld", "GCA", "GcaPassLive",
+    "GcaPassDead", "GcaDrib", "GcaSh", "GcaFld", "Tkl", "TklWon", "TklDef3rd", "TklMid3rd", "TklAtt3rd", "TklDri",
+    "TklDriAtt", "TklDri%", "TklDriPast", "Blocks", "BlkSh", "Int", "Recov", "Carries", "CarTotDist", "CarPrgDist", "Fld"]
+
+var defender_features = ["PasTotCmp", "PasTotDist", "PasTotPrgDist", "Tkl", "TklWon", "TklDef3rd", "TklMid3rd", "TklAtt3rd", "TklDri", "TklDriAtt", "TklDriPast", "Blocks",
+    "BlkSh", "Int", "Tkl+Int", "Recov", "AerWon", "AerLost", "Carries", "CarTotDist", "CarPrgDist", "CrdY", "CrdR", "Fls", "Clr"]
+
 // variable to change set of features
-var position = "attacco";
+var position = "attk";
 
 var calculateMinMaxValue = function (feature, data) {
     var min = d3.min(data, function (d) {
@@ -65,16 +78,25 @@ function scatterPlot(players_data, acronyms) {
             .style('top', event.pageY + 8 + 'px'); // Puoi regolare la posizione verticale a tuo piacimento
     };
 
+
+    d3.selectAll(".scatterPlot").remove();
+
     // append the svg object to the body of the page
+
     const svg = d3.select("#dataviz")
         .append("svg")
+        .attr("class", "scatterPlot")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform",
             `translate(${margin.left}, ${margin.top})`);
 
+
+    svg.selectAll(".group").remove();
+
     var points = svg.append('g')
+        .attr("class", "group")
         .selectAll("points");
 
     function drawPoints(x_label, y_label) {
@@ -179,19 +201,19 @@ function scatterPlot(players_data, acronyms) {
 
     dropMenuX
         .selectAll("option")
-        .data(function () { if (position == "attacco") return ["Shots", "Goals"]; })
+        .data(function () { if (position == "attk") return forward_features; })
         .enter()
         .append("option")
         .attr("value", d => d)
         .text(d => d);
 
     dropMenuX.on('change', function (event) {
-        drawPoints(event.target.value, dropMenuY.property('value'));
+        drawPoints(event.target.value, dropMenuY.property("value"));
     });
 
     dropMenuY
         .selectAll("option")
-        .data(function () { if (position == "attacco") return ["Shots", "Goals"]; })
+        .data(function () { if (position == "attk") return forward_features; })
         .enter()
         .append("option")
         .attr("value", d => d)
