@@ -38,46 +38,60 @@ var tooltip = d3.select("#dataviz")
     .style("border-radius", "5px")
     .style("padding", "10px");
 
-var mouseover = function (d) {
+var mouseover = function (event, d) {
+    d3.selectAll("circle")
+        .style("r", 7)
+        .style("fill", "white")
+
+    //change color to a point
+    d3.select(this)
+        .transition()
+        .duration(200)
+        .style("r", 10)
+        .style("fill", "green");
+
     tooltip
+        .transition()
+        .duration(200)
         .style("opacity", 1);
 };
 
-var mouseleave = function (_) {
+var mouseout = function (event, d) {
+    d3.select(this)
+        .transition()
+        .duration(200)
+        .style("fill", "white")
+        .style("r", 7);
+
     tooltip
         .transition()
         .duration(200)
         .style("opacity", 0);
-};
+}
+
 
 function scatterPlot(players_data, acronyms) {
+
     var mousemove = function (event, d) {
         let x_label = d3.select("#x-axis").property("value")
         let y_label = d3.select("#y-axis").property("value")
 
-        d3.selectAll("circle")
-            .style("fill", "white")
-
-        //change color to a point
-        d3.select(this)
-            .style("fill", "green");
-
         tooltip
             .html(acronyms["Player"] + ": " + d.Player)
-            .style('left', event.pageX + 'px')
-            .style('top', event.pageY - 28 + 'px');
+            .style("font-size", "14px")
+            .style('left', event.pageX - 100 + 'px')
+            .style('top', event.pageY - 85 + 'px');
 
         tooltip.append("div")
             .html(acronyms[x_label] + ": " + d[x_label])
             .style('left', event.pageX + 'px')
-            .style('top', event.pageY + 8 + 'px'); // Puoi regolare la posizione verticale a tuo piacimento
+            .style('top', event.pageY + 8 + 'px');
 
         tooltip.append("div")
             .html(acronyms[y_label] + ": " + d[y_label])
             .style('left', event.pageX + 'px')
-            .style('top', event.pageY + 8 + 'px'); // Puoi regolare la posizione verticale a tuo piacimento
-    };
-
+            .style('top', event.pageY + 8 + 'px');
+    }
 
     d3.selectAll(".scatterPlot").remove();
 
@@ -167,7 +181,7 @@ function scatterPlot(players_data, acronyms) {
             .attr("x", height / -3)
             .text(acronyms[y_label])
 
-        var tooltip = d3.select("#dataviz")
+        d3.select("#dataviz")
             .append("div")
             .style("opacity", 0)
             .attr("class", "tooltip")
@@ -177,23 +191,26 @@ function scatterPlot(players_data, acronyms) {
             .style("border-radius", "5px")
             .style("padding", "10px");
 
-
         // Add dots
         points = points
             .data(players_data)
             .join("circle")
             .style("fill", "white")
             .style("stroke", "black")
+            .style("cursor", "pointer")
             .on("mouseover", mouseover)
+            .on("mouseout", mouseout)
             .on("mousemove", mousemove)
-            .on("mouseleave", mouseleave)
+            .on("click", (event, d) => {
+                console.log("TODO: Add to the starplot comparization");
+            });
 
         points
             .transition()
             .duration(1000)
             .attr("cx", function (d) { return x(d[x_label]); })
             .attr("cy", function (d) { return y(d[y_label]); })
-            .attr("r", 7)
+            .attr("r", 7);
     }
 
     const dropMenuX = d3.select("#x-axis");
