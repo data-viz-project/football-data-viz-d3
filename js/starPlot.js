@@ -27,15 +27,10 @@ function starPlot() {
         // Aggiungi più oggetti giocatore se necessario
     ];
 
-    let names = data.map(d => d.player);
+    let players = data.map(d => d.player);
+    let variables = Object.keys(data[0]);
+    variables.splice(variables.indexOf("player"), 1);
 
-    // Rimozione del nome dall'oggetto
-    data.forEach(d => delete d.player);
-
-    // Nomi delle variabili (features)
-    const variables = Object.keys(data[0]);
-
-    // Calcola dominio per la radialScale basato sui dati
     const maxStatValue = Math.max(
         ...data.map(item =>
             Math.max(item.goals, item.shots, item.pasTotCmp, item.assists, item.aerWon)
@@ -47,22 +42,25 @@ function starPlot() {
         )
     );
 
-    // Funzione per calcolare le coordinate del percorso
+    // 2: Calculate the coordinates for each path
     function getPathCoordinates(data_point) {
-        return variables.map((ft_name, i) => {
-            const angle = (Math.PI / 2) + (2 * Math.PI * i / variables.length);
-            return angleToCoordinate(angle, data_point[ft_name]);
-        });
+        let coordinates = [];
+        for (var i = 0; i < variables.length; i++) {
+            let ft_name = variables[i];
+            let angle = (Math.PI / 2) + (2 * Math.PI * i / variables.length);
+            coordinates.push(angleToCoordinate(angle, data_point[ft_name]));
+        }
+        return coordinates;
     }
 
-    // Funzione per ottenere un colore più chiaro
+    // 3: Get lighter color from a given color
     function lighterColor(color) {
         const c = d3.color(color);
-        c.opacity = c.opacity - 0.4;
+        c.opacity = c.opacity - .4;
         return c.toString();
     }
 
-    // Gestisce l'evento di click su una stella
+    // 4: left on click function star-plot
     function on_click(event, d) {
         const g = svg.selectAll("g");
 
@@ -72,8 +70,14 @@ function starPlot() {
             .attr("stroke-width", idleWidth)
             .attr("opacity", idleOpacity);
 
-        g.selectAll("circle")
+        g.selectAll(".pathDots")
             .attr("r", pointRadius);
+
+        g.selectAll(".legendDots")
+            .attr("r", 7);
+
+        g.selectAll(".legendText")
+            .attr("font-size", "18px")
 
         const clickedGroup = d3.select(this.parentNode);
 
@@ -86,51 +90,69 @@ function starPlot() {
             .attr("opacity", 1)
             .attr("stroke-width", idleWidth + 2);
 
-        clickedGroup.selectAll("circle")
+        clickedGroup.selectAll(".pathDots")
             .transition()
             .duration(400)
             .attr("r", pointRadius + 4);
+
+        clickedGroup.selectAll(".legendDots")
+            .transition()
+            .duration(400)
+            .attr("r", 7 + 2);
+
+        clickedGroup.selectAll(".legendText")
+            .transition()
+            .duration(400)
+            .attr("font-size", "20px")
     }
 
-    // Funzione per calcolare le coordinate di un punto sulla circonferenza
     function angleToCoordinate(angle, value) {
-        const x = Math.cos(angle) * radialScale(value);
-        const y = Math.sin(angle) * radialScale(value);
+        let x = Math.cos(angle) * radialScale(value);
+        let y = Math.sin(angle) * radialScale(value);
         return { "x": width / 2 + x, "y": height / 2 - y };
     }
 
-    const svg = d3.select("body").append("svg")
+    let svg = d3.select("#starPlot").append("svg")
         .attr("width", width)
         .attr("height", height)
         .attr("class", "svg-style");
 
-    // Scala utilizzata per mappare i valori al raggio
+    // scale used to map the values to the radius  
     const radialScale = d3.scaleLinear()
-        .domain([minStatValue, maxStatValue])
-        .range([0, 280]);
+        .domain([minStatValue, maxStatValue]) // Set the domain based on the maximum value in the data
+        .range([0, 250]);
 
-    const ticks = d3.ticks(minStatValue, maxStatValue, 6);
+    let ticks = [];
+    let numTicks = 6;
+    let increment = (maxStatValue - minStatValue) / numTicks;
+    for (let i = 0; i < numTicks + 1; i++) {
+        ticks.push(minStatValue + i * increment);
+    }
 
     svg.selectAll("circle")
         .data(ticks)
-        .join("circle")
-        .attr("cx", width / 2)
-        .attr("cy", height / 2)
-        .attr("fill", "none")
-        .attr("stroke", "gray")
-        .attr("r", d => radialScale(d))
-        .attr("stroke-opacity", 0.5);
+        .join(
+            enter => enter.append("circle")
+                .attr("cx", width / 2)
+                .attr("cy", height / 2)
+                .attr("fill", "none")
+                .attr("stroke", "gray")
+                .attr("r", d => radialScale(d))
+                .attr("stroke-opacity", 0.5)
+        );
 
     svg.selectAll(".ticklabel")
         .data(ticks)
-        .join("text")
-        .attr("class", "ticklabel")
-        .attr("x", width / 2 + 5)
-        .attr("y", d => height / 2 - radialScale(d) - 5)
-        .text(d => d.toString());
+        .join(
+            enter => enter.append("text")
+                .attr("class", "ticklabel")
+                .attr("x", width / 2 + 5)
+                .attr("y", d => height / 2 - radialScale(d) - 5)
+                .text(d => d.toString())
+        );
 
-    const featureData = variables.map((f, i) => {
-        const angle = (Math.PI / 2) + (2 * Math.PI * i / variables.length);
+    let featureData = variables.map((f, i) => {
+        let angle = (Math.PI / 2) + (2 * Math.PI * i / variables.length);
         return {
             "name": f,
             "angle": angle,
@@ -139,132 +161,134 @@ function starPlot() {
         };
     });
 
+    // draw axis line
     svg.selectAll("line")
         .data(featureData)
-        .join("line")
-        .attr("x1", width / 2)
-        .attr("y1", height / 2)
-        .attr("x2", d => d.line_coord.x)
-        .attr("y2", d => d.line_coord.y)
-        .attr("stroke", "black");
-
-    // ...
-
-    svg.selectAll(".axislabel")
-        .data(featureData)
-        .join("text")
-        .attr("x", d => calculateXPosition(d, featureData.indexOf(d)))
-        .attr("y", d => calculateYPosition(d, featureData.indexOf(d)))
-        .text(d => d.name)
-        .attr("id", d => d.name);
-
-    svg.selectAll(".axislabel")
-        .data(featureData)
-        .join("text")
-        .attr("x", d => calculateXPosition(d, featureData.indexOf(d)))
-        .attr("y", d => calculateYPosition(d, featureData.indexOf(d)))
-        .text(d => d.name)
-        .attr("id", d => d.name);
-
-    const line = d3.line()
-        .x(d => d.x)
-        .y(d => d.y);
-
-    // Scala utilizzata per mappare il nome del giocatore a un colore
-    const colors = d3.scaleOrdinal()
-        .domain(names)
-        .range(d3.schemeTableau10);
-
-    svg.selectAll("myCircles")
-        .data(data)
-        .join("g")
-        .attr("id", (d, i) => "group" + (i + 1))
-        .selectAll("path")
-        .data(d => {
-            const pathCoordinates = getPathCoordinates(d);
-            // Aggiungi il punto finale uguale al punto di partenza
-            pathCoordinates.push(pathCoordinates[0]);
-            return [pathCoordinates];
-        })
-        .join("path")
-        .attr("d", line)
-        .attr("stroke-width", idleWidth)
-        .attr("stroke", d => colors(d3.select(this.parentNode).attr("id")))
-        .attr("fill", "none")
-        .attr("stroke-opacity", 1)
-        .attr("opacity", idleOpacity)
-        .on("click", on_click);
-
-    svg.selectAll("myCircles")
-        .data(data)
-        .join("g")
-        .selectAll("circle")
-        .data(d => getPathCoordinates(d))
-        .join("circle")
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y)
-        .attr("fill", d => colors(d3.select(this.parentNode).attr("id")))
-        .attr("r", pointRadius);
-
-    // Legenda - Dots
-    svg.selectAll(".mydots")
-        .data(names)
-        .enter()
-        .append("circle")
-        .attr("cx", 100)
-        .attr("cy", (d, i) => 100 + i * 25) // 100 è dove appare il primo punto. 25 è la distanza tra i punti
-        .attr("r", 7)
-        .style("fill", d => colors(d));
-
-    // Legenda - Labels
-    svg.selectAll("mylabels")
-        .data(names)
-        .enter()
-        .append("text")
-        .attr("x", 120)
-        .attr("y", (d, i) => 100 + i * 25) // 100 è dove appare il primo punto. 25 è la distanza tra i punti
-        .style("fill", d => colors(d))
-        .text(d => d)
-        .attr("text-anchor", "left")
-        .style("alignment-baseline", "middle");
+        .join(
+            enter => enter.append("line")
+                .attr("x1", width / 2)
+                .attr("y1", height / 2)
+                .attr("x2", d => d.line_coord.x)
+                .attr("y2", d => d.line_coord.y)
+                .attr("stroke", "black")
+        );
 
 
-    // ...
-
+    // Funzione per calcolare la posizione x in base alla posizione della feature
     function calculateXPosition(d, i) {
-        if (i === 0) {
-            return d.line_coord.x - 25;
-        } else if (i === 1) {
-            return d.line_coord.x - 90;
-        } else if (i === 2) {
-            return d.line_coord.x - 40;
-        } else if (i === 4) {
-            return d.line_coord.x + 11;
-        }
-        return d.line_coord.x;
+        if (i == 0)
+            return d.line_coord.x - 25
+        else if (i == 1)
+            return d.line_coord.x - 90
+        else if (i == 2)
+            return d.line_coord.x - 40
+        else if (i == 4)
+            return d.line_coord.x + 11
+        return d.line_coord.x
     }
 
+    // Funzione per calcolare la posizione y in base alla posizione della feature
     function calculateYPosition(d, i) {
-        if (i === 0) {
-            return d.line_coord.y - 27;
-        } else if (i === 1) {
-            return d.line_coord.y - 5;
-        } else if (i === 2) {
-            return d.line_coord.y + 20;
-        } else if (i === 3) {
-            return d.line_coord.y + 20;
-        }
+        if (i == 0)
+            return d.line_coord.y - 27
+        else if (i == 1)
+            return d.line_coord.y - 5
+        else if (i == 2)
+            return d.line_coord.y + 20
+        else if (i == 3)
+            return d.line_coord.y + 20
         return d.line_coord.y;
     }
 
-    // ...
+    svg.selectAll(".axislabel")
+        .data(featureData)
+        .join(
+            enter => enter.append("text")
+                .attr("x", calculateXPosition)
+                .attr("y", calculateYPosition)
+                .text(d => d.name)
+                .attr("id", d => d.name)
+        );
 
-    // Ora puoi utilizzare calculateXPosition e calculateYPosition nel tuo codice.
+    let line = d3.line()
+        .x(d => d.x)
+        .y(d => d.y);
 
-    // ...
+    // scale used to map the name of the data case to a color
+    var colors = d3.scaleOrdinal()
+        .domain(players)
+        .range(d3.schemeTableau10);
+
+    svg.selectAll(".myPlot")
+        .data(data)
+        .join(
+            enter => {
+                enter.append("g")
+                    .attr("id", function (d, i) { return "group" + (i + 1); })
+                    .each(function (d, i) { // Capture 'this' in a variable
+                        const group = d3.select(this);
+
+                        group.selectAll("path")
+                            .data(d => [getPathCoordinates(d)]) // Utilizza direttamente i dati d per calcolare le coordinate del percorso
+                            .join(enter => enter.append("path")
+                                .attr("d", line)
+                                .attr("stroke-width", idleWidth)
+                                .attr("stroke", function (d) { return colors(group.attr("id")) })
+                                .attr("fill", "none")
+                                .attr("stroke-opacity", 1)
+                                .attr("opacity", idleOpacity)
+                                .attr("id", function (d, i) { return "path" + group.attr("id").substring(5); })
+                                .style("cursor", "pointer")
+                                .on("click", on_click)
+                            );
+
+                        group.selectAll("pathDots")
+                            .data(d => getPathCoordinates(d)) // Utilizza direttamente i dati d per calcolare le coordinate dei punti
+                            .join(
+                                enter => enter.append("circle")
+                                    .attr("cx", d => d.x)
+                                    .attr("cy", d => d.y)
+                                    .attr("fill", function (d) { return colors(group.attr("id")) })
+                                    .attr("r", pointRadius)
+                                    .attr("class", "pathDots")
+                                    .attr("id", function (d, i) { return "pathCircle" + group.attr("id").substring(5) }) // Unique ID based on group and index
+                                    .style("cursor", "pointer")
+                                    .on("click", on_click)
+                            );
 
 
+                        // legend - Dots
+                        group.selectAll("legendDots")
+                            .data([d.name])
+                            .enter()
+                            .append("circle")
+                            .attr("cx", 100)
+                            .attr("cy", () => { return 100 + i * 25 }) // 100 is where the first dot appears. 25 is the distance between dots
+                            .attr("r", 7)
+                            .attr("class", "legendDots")
+                            .style("fill", function (d) { return colors(d) })
+                            .style("cursor", "pointer")
+                            .on("click", on_click)
 
+
+                        // legend - Labels
+                        group.selectAll("legendText")
+                            .data([d.name])
+                            .enter()
+                            .append("text")
+                            .attr("x", 120)
+                            .attr("y", function () { return 100 + i * 25 }) // 100 is where the first dot appears. 25 is the distance between dots
+                            .style("fill", function (d) { return colors(d) })
+                            .text(function (d) { return d })
+                            .attr("text-anchor", "left")
+                            .style("alignment-baseline", "middle")
+                            .style("cursor", "pointer")
+                            .attr("class", "legendText")
+                            .on("click", on_click)
+
+                    });
+            }
+        );
 }
 
 export { starPlot };
