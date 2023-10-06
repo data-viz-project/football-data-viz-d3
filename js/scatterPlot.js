@@ -1,6 +1,9 @@
-const margin = { top: 10, right: 30, bottom: 50, left: 80 },
-    width = 1300 - margin.left - margin.right,
-    height = 600 - margin.top - margin.bottom;
+const margin = { top: 10, right: 30, bottom: 50, left: 80 }
+var width = 100
+var height = 100
+
+var width_graph = window.innerWidth / 100 * 50
+var height_graph = window.innerHeight / 1.5
 
 let common_features = ["Player", "Squad", "Comp", "MP", "Min", "Pos"]
 
@@ -19,14 +22,27 @@ var defender_features = ["PasTotCmp", "PasTotDist", "PasTotPrgDist", "Tkl", "Tkl
 var position = "attk";
 
 var calculateMinMaxValue = function (feature, data) {
-    var min = d3.min(data, function (d) {
+    let minMax = d3.extent(data, function (d) {
         return d[feature];
     });
-    var max = d3.max(data, function (d) {
-        return d[feature];
-    });
-    return [min, max];
+    //TODO: FIX!!!
+    return minMax;
 };
+
+
+var shuffleArray = function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+
+        // Generate random number 
+        var j = Math.floor(Math.random() * (i + 1));
+
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+
+    return array;
+}
 
 var tooltip = d3.select("#dataviz")
     .append("div")
@@ -39,7 +55,7 @@ var tooltip = d3.select("#dataviz")
     .style("padding", "10px");
 
 var mouseover = function (event, d) {
-    d3.selectAll("circle")
+    d3.selectAll(".scatterDots")
         .style("r", 7)
         .style("fill", "white")
 
@@ -97,11 +113,12 @@ function scatterPlot(players_data, acronyms) {
 
     // append the svg object to the body of the page
 
-    const svg = d3.select("#dataviz")
+    const container = d3.select("#dataviz")
+    const svg = container
         .append("svg")
         .attr("class", "scatterPlot")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("width", `${width}%`)
+        .attr("height", `${height}%`)
         .append("g")
         .attr("transform",
             `translate(${margin.left}, ${margin.top})`);
@@ -115,18 +132,19 @@ function scatterPlot(players_data, acronyms) {
 
     function drawPoints(x_label, y_label) {
         let minMax = calculateMinMaxValue(x_label, players_data)
+        console.log(minMax);
 
         // Add X axis
         const x = d3.scaleLinear()
             .domain([minMax[0], minMax[1]])
-            .range([0, width]);
+            .range([0, width_graph]);
 
         svg.selectAll(".axis").remove();
 
         // Append a new X axis group
         var axis_x = svg.append("g")
             .attr("class", "axis")
-            .attr("transform", `translate(0, ${height})`)
+            .attr("transform", `translate(0, ${height_graph})`)
             .attr("opacity", "0"); // Start with opacity set to 0
 
         // Transition the opacity of the old axis to 0
@@ -146,7 +164,7 @@ function scatterPlot(players_data, acronyms) {
         // Add Y axis
         const y = d3.scaleLinear()
             .domain([minMax[0], minMax[1]])
-            .range([height, 0]);
+            .range([height_graph, 0]);
 
         let axis_y = svg.append("g")
             .attr("class", "axis")
@@ -168,8 +186,8 @@ function scatterPlot(players_data, acronyms) {
         svg.append("text")
             .attr("class", "axis-label")
             .attr("text-anchor", "end")
-            .attr("x", width / 2)
-            .attr("y", height + margin.top + 25)
+            .attr("x", width_graph / 2 + 30)
+            .attr("y", height_graph + 40)
             .text(acronyms[x_label]);
 
         // Y axis label:
@@ -198,6 +216,7 @@ function scatterPlot(players_data, acronyms) {
             .style("fill", "white")
             .style("stroke", "black")
             .style("cursor", "pointer")
+            .style("class", "scatterDots")
             .on("mouseover", mouseover)
             .on("mouseout", mouseout)
             .on("mousemove", mousemove)
@@ -230,7 +249,7 @@ function scatterPlot(players_data, acronyms) {
 
     dropMenuY
         .selectAll("option")
-        .data(function () { if (position == "attk") return forward_features; })
+        .data(function () { if (position == "attk") return shuffleArray(forward_features); })
         .enter()
         .append("option")
         .attr("value", d => d)

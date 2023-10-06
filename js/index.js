@@ -24,9 +24,24 @@ async function showDashboard() {
         console.log(league);
 
         // read the CSV
+        // Carica il file CSV
         var attk_data = await d3.csv(`../data/${league}/attk.csv`, data => {
+            // Cicla attraverso ciascun record nel CSV
+            for (var key in data) {
+                // Controlla se la chiave è una delle feature da convertire a numero
+                if (key === "Player" || key === "Comp" || key === "Squad") {
+                    // Lascia il valore come stringa
+                    data[key] = data[key];
+                } else {
+                    // Altrimenti, converte il valore in numero (se possibile)
+                    data[key] = parseFloat(data[key]);
+                }
+            }
             return data;
         });
+
+
+        console.log(attk_data);
 
         var cen_data = await d3.csv(`../data/${league}/cen.csv`, data => {
             return data;

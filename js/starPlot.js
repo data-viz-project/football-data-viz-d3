@@ -1,7 +1,14 @@
+var calculateMinMaxValue = function (feature, data) {
+    let minMax = d3.extent(data, function (d) {
+        return d[feature];
+    });
+    return minMax;
+};
+
 function starPlot() {
     // Configurazione delle costanti
-    const width = 1200;
-    const height = 650;
+    const width = 610;
+    const height = 500;
     const idleOpacity = 0.5;
     const idleWidth = 4;
     const pointRadius = 5;
@@ -9,20 +16,18 @@ function starPlot() {
     // Dati dei giocatori
     const data = [
         {
-            player: "Tammy Abraham",
             goals: 0.50,
-            shots: 2.71,
-            pasTotCmp: 14.6,
+            shots: 0.1,
+            pasTotCmp: 0.8,
             assists: 0.12,
-            aerWon: 2.39
+            aerWon: 0.39
         },
         {
-            player: "Francesco Acerbi",
             goals: 0.14,
             shots: 0.57,
-            pasTotCmp: 64.3,
+            pasTotCmp: 0.3,
             assists: 0.00,
-            aerWon: 2.84
+            aerWon: 0.84
         },
         // Aggiungi più oggetti giocatore se necessario
     ];
@@ -31,16 +36,8 @@ function starPlot() {
     let variables = Object.keys(data[0]);
     variables.splice(variables.indexOf("player"), 1);
 
-    const maxStatValue = Math.max(
-        ...data.map(item =>
-            Math.max(item.goals, item.shots, item.pasTotCmp, item.assists, item.aerWon)
-        )
-    );
-    const minStatValue = Math.min(
-        ...data.map(item =>
-            Math.min(item.goals, item.shots, item.pasTotCmp, item.assists, item.aerWon)
-        )
-    );
+    const maxStatValue = 0.99
+    const minStatValue = 0.01
 
     // 2: Calculate the coordinates for each path
     function getPathCoordinates(data_point) {
@@ -94,16 +91,6 @@ function starPlot() {
             .transition()
             .duration(400)
             .attr("r", pointRadius + 4);
-
-        clickedGroup.selectAll(".legendDots")
-            .transition()
-            .duration(400)
-            .attr("r", 7 + 2);
-
-        clickedGroup.selectAll(".legendText")
-            .transition()
-            .duration(400)
-            .attr("font-size", "20px")
     }
 
     function angleToCoordinate(angle, value) {
@@ -120,10 +107,10 @@ function starPlot() {
     // scale used to map the values to the radius  
     const radialScale = d3.scaleLinear()
         .domain([minStatValue, maxStatValue]) // Set the domain based on the maximum value in the data
-        .range([0, 250]);
+        .range([0, width / 3]);
 
     let ticks = [];
-    let numTicks = 6;
+    let numTicks = 5;
     let increment = (maxStatValue - minStatValue) / numTicks;
     for (let i = 0; i < numTicks + 1; i++) {
         ticks.push(minStatValue + i * increment);
@@ -214,12 +201,13 @@ function starPlot() {
         .x(d => d.x)
         .y(d => d.y);
 
+
     // scale used to map the name of the data case to a color
     var colors = d3.scaleOrdinal()
         .domain(players)
         .range(d3.schemeTableau10);
 
-    svg.selectAll(".myPlot")
+    svg.selectAll("myPlot")
         .data(data)
         .join(
             enter => {
@@ -229,7 +217,15 @@ function starPlot() {
                         const group = d3.select(this);
 
                         group.selectAll("path")
-                            .data(d => [getPathCoordinates(d)]) // Utilizza direttamente i dati d per calcolare le coordinate del percorso
+                            .data(d => {
+                                let data = {};
+                                for (let i = 0; i < variables.length; i++) {
+                                    data[variables[i]] = d[variables[i]];
+                                }
+                                const pathCoordinates = getPathCoordinates(data);
+                                pathCoordinates.push(pathCoordinates[0]);
+                                return [pathCoordinates];
+                            })
                             .join(enter => enter.append("path")
                                 .attr("d", line)
                                 .attr("stroke-width", idleWidth)
@@ -243,7 +239,13 @@ function starPlot() {
                             );
 
                         group.selectAll("pathDots")
-                            .data(d => getPathCoordinates(d)) // Utilizza direttamente i dati d per calcolare le coordinate dei punti
+                            .data(d => {
+                                let data = {};
+                                for (let i = 0; i < variables.length; i++) {
+                                    data[variables[i]] = d[variables[i]];
+                                }
+                                return getPathCoordinates(data)
+                            })
                             .join(
                                 enter => enter.append("circle")
                                     .attr("cx", d => d.x)
@@ -255,40 +257,8 @@ function starPlot() {
                                     .style("cursor", "pointer")
                                     .on("click", on_click)
                             );
-
-
-                        // legend - Dots
-                        group.selectAll("legendDots")
-                            .data([d.name])
-                            .enter()
-                            .append("circle")
-                            .attr("cx", 100)
-                            .attr("cy", () => { return 100 + i * 25 }) // 100 is where the first dot appears. 25 is the distance between dots
-                            .attr("r", 7)
-                            .attr("class", "legendDots")
-                            .style("fill", function (d) { return colors(d) })
-                            .style("cursor", "pointer")
-                            .on("click", on_click)
-
-
-                        // legend - Labels
-                        group.selectAll("legendText")
-                            .data([d.name])
-                            .enter()
-                            .append("text")
-                            .attr("x", 120)
-                            .attr("y", function () { return 100 + i * 25 }) // 100 is where the first dot appears. 25 is the distance between dots
-                            .style("fill", function (d) { return colors(d) })
-                            .text(function (d) { return d })
-                            .attr("text-anchor", "left")
-                            .style("alignment-baseline", "middle")
-                            .style("cursor", "pointer")
-                            .attr("class", "legendText")
-                            .on("click", on_click)
-
                     });
             }
         );
 }
-
 export { starPlot };
