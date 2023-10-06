@@ -4,7 +4,15 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin: 0px;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+h1 {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-weight: bold;
+    font-size: 50px;
+    margin: 10px;
 }
 
 #myTeam {
@@ -33,6 +41,7 @@ body {
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
+    margin: 10px;
 }
 
 .axis-interaction {
@@ -52,6 +61,10 @@ body {
 .flex-item {
     display: flex;
     margin: 5px;
+}
+
+.flex-item p {
+    margin: 0;
 }
 
 #starPlot {
