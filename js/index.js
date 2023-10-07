@@ -80,8 +80,8 @@ async function showDashboard() {
     });
 
     scatterPlot(attk_data, acronyms);
-    starPlot();
-    myTeam(attk_data, cen_data, dif_data);
+    //starPlot();
+    //myTeam(attk_data, cen_data, dif_data);
 }
 
 showDashboard();
