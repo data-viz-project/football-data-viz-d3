@@ -1,3 +1,17 @@
+//set up svg using margin conventions - we'll need plenty of room on the left for labels
+var margin = {
+    top: 15,
+    right: 25,
+    bottom: 15,
+    left: 60
+};
+
+var currentWidth = parseInt(d3.select('#barPlot').style('width'), 10)
+var currentHeight = parseInt(d3.select('#barPlot').style('height'), 10)
+
+var width = currentWidth - margin.left - margin.right,
+    height = currentHeight - margin.top - margin.bottom;
+
 function barPlot() {
     var data = [{
         "player": "Apples",
@@ -26,23 +40,26 @@ function barPlot() {
     {
         "player": "Pears",
         "value": 30,
-    }];
+    },
+    {
+        "player": "Cocco",
+        "value": 80,
+    },
+    {
+        "player": "Cocco2",
+        "value": 80,
+    }, {
+        "player": "Cocco3",
+        "value": 80,
+    },
+    {
+        "player": "Cocco4",
+        "value": 80,
+    }
 
-    //sort bars based on value
-    data = data.sort(function (a, b) {
-        return d3.descending(a.value, b.value);
-    })
+    ];
 
-    //set up svg using margin conventions - we'll need plenty of room on the left for labels
-    var margin = {
-        top: 15,
-        right: 25,
-        bottom: 15,
-        left: 60
-    };
-
-    var width = 960 - margin.left - margin.right,
-        height = 900 - margin.top - margin.bottom;
+    data = data.sort((a, b) => b.value - a.value).slice(0, 15);
 
     var svg = d3.select("#barPlot").append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -50,60 +67,42 @@ function barPlot() {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var x = d3.scaleLinear()
-        .range([0, width])
-        .domain([0, d3.max(data, function (d) {
-            return d.value;
-        })]);
+    const x = d3.scaleLinear()
+        .domain([0, Math.max(...data.map(d => d.value))])
+        .range([0, width]);
 
-    var y = d3.scaleBand()
-        .range([0, width])
-        .padding(10)
-        .domain(data.map(function (d) {
-            return d.player;
-        }));
+    const y = d3.scaleBand()
+        .domain(data.map(d => d.player))
+        .range([0, height])
+        .padding(0.2);
 
-    //make y axis to show bar names
-    var yAxis = d3.axisLeft(y)
-        // no tick marks
-        .tickSize(0);
+    // Make y axis to show bar names
+    const yAxis = d3.axisLeft(y).tickSize(0);
 
-    var gy = svg.append("g")
+    svg.append("g")
         .attr("class", "y axisBarPlot")
-        .call(yAxis)
+        .call(yAxis);
 
-    var bars = svg.selectAll(".bar")
+    const bars = svg.selectAll(".bar")
         .data(data)
         .enter()
-        .append("g")
+        .append("g");
 
-    //append rects
+    // Append rects
     bars.append("rect")
         .attr("class", "bar")
-        .attr("y", function (d) {
-            return y(d.player);
-        })
-        .attr("height", 20)
+        .attr("y", d => y(d.player))
+        .attr("height", y.bandwidth())
         .attr("x", 0)
-        .attr("width", function (d) {
-            return x(d.value);
-        });
+        .attr("width", d => x(d.value));
 
-    //add a value label to the right of each bar
+    // Add a value label to the right of each bar
     bars.append("text")
         .attr("class", "label")
-        //y position of the label is halfway down the bar
-        .attr("y", function (d) {
-            return y(d.player) + 20 / 2 + 4;
-        })
-        //x position is 3 pixels to the right of the bar
-        .attr("x", function (d) {
-            return x(d.value) - 20;
-        })
-        .text(function (d) {
-            return d.value;
-        })
-        .style("fill", "white");
-
+        .attr("y", d => y(d.player) + y.bandwidth() / 2 + 4)
+        .attr("x", d => x(d.value) - 20) // Adjust the x position for the label
+        .text(d => d.value)
+        .style("fill", "white")
+        .style("font-weight", "bold")
 }
 export { barPlot }

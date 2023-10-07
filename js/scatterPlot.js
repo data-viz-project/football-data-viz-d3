@@ -2,8 +2,8 @@ const margin = { top: 10, right: 30, bottom: 50, left: 80 }
 var width = 100
 var height = 100
 
-var width_graph = window.innerWidth / 100 * 50
-var height_graph = window.innerHeight / 1.5
+var width_graph = parseInt(d3.select('#scatter-plot').style('width'), 10) / 1.1
+var height_graph = parseInt(d3.select('#scatter-plot').style('height'), 10) / 1.3
 
 let common_features = ["Player", "Squad", "Comp", "MP", "Min", "Pos"]
 
@@ -25,7 +25,6 @@ var calculateMinMaxValue = function (feature, data) {
     let minMax = d3.extent(data, function (d) {
         return d[feature];
     });
-    //TODO: FIX!!!
     return minMax;
 };
 
@@ -44,7 +43,7 @@ var shuffleArray = function shuffleArray(array) {
     return array;
 }
 
-var tooltip = d3.select("#dataviz")
+var tooltip = d3.select("#scatter-plot")
     .append("div")
     .style("opacity", 0)
     .attr("class", "tooltip")
@@ -56,14 +55,14 @@ var tooltip = d3.select("#dataviz")
 
 var mouseover = function (event, d) {
     d3.selectAll(".scatterDots")
-        .style("r", 7)
+        .attr("r", 7)
         .style("fill", "white")
 
     //change color to a point
     d3.select(this)
         .transition()
         .duration(200)
-        .style("r", 10)
+        .attr("r", 12)
         .style("fill", "green");
 
     tooltip
@@ -77,7 +76,7 @@ var mouseout = function (event, d) {
         .transition()
         .duration(200)
         .style("fill", "white")
-        .style("r", 7);
+        .attr("r", 7);
 
     tooltip
         .transition()
@@ -113,7 +112,7 @@ function scatterPlot(players_data, acronyms) {
 
     // append the svg object to the body of the page
 
-    const container = d3.select("#dataviz")
+    const container = d3.select("#scatter-plot")
     const svg = container
         .append("svg")
         .attr("class", "scatterPlot")
@@ -199,7 +198,7 @@ function scatterPlot(players_data, acronyms) {
             .attr("x", height / -3)
             .text(acronyms[y_label])
 
-        d3.select("#dataviz")
+        d3.select("#scatter-plot")
             .append("div")
             .style("opacity", 0)
             .attr("class", "tooltip")
@@ -215,13 +214,14 @@ function scatterPlot(players_data, acronyms) {
             .join("circle")
             .style("fill", "white")
             .style("stroke", "black")
-            .style("cursor", "pointer")
             .style("class", "scatterDots")
             .on("mouseover", mouseover)
             .on("mouseout", mouseout)
             .on("mousemove", mousemove)
             .on("click", (event, d) => {
-                console.log("TODO: Add to the starplot comparization");
+                window.scrollTo(0, document.body.scrollHeight);
+                d3.select("#barPlot").style("width", "35%")
+                d3.select("#player-vis").transition().duration(1000).style("width", "65%")
             });
 
         points
