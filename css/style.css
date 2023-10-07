@@ -76,3 +76,21 @@ h1 {
     height: 42vw;
     display: flex;
 }
+
+.bar {
+    fill: #5f89ad;
+}
+
+.axisBarPlot {
+    font-size: 13px;
+}
+
+.axisBarPlot path,
+.axisBarPlot line {
+    fill: none;
+    display: none;
+}
+
+.label {
+    font-size: 13px;
+}

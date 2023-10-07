@@ -1,6 +1,6 @@
 import { scatterPlot } from "./scatterPlot.js";
 import { myTeam } from "./myTeam.js";
-import { starPlot } from "./starPlot.js";
+import { barPlot } from "./barPlot.js";
 
 // map to explain features inside the csv 
 var acronyms = await d3.json("../data/acronyms.json", data => {
@@ -80,6 +80,7 @@ async function showDashboard() {
     });
 
     scatterPlot(attk_data, acronyms);
+    barPlot();
     //starPlot();
     //myTeam(attk_data, cen_data, dif_data);
 }
