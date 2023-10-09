@@ -13,11 +13,14 @@ var width = currentWidth - margin.left - margin.right,
     height = currentHeight - margin.top - margin.bottom;
 
 function barPlot(player_data) {
-    for (var i = 0; i < player_data.length; i++) {
-        player_data[i].Goals = player_data[i]["Goals"] * player_data[i]["90s"];
-    }
 
-    var data = player_data.sort((a, b) => b["Goals"] - a["Goals"]).slice(0, 15);
+    // deep copy of player_data obj
+    var data = JSON.parse(JSON.stringify(player_data))
+
+    for (var i = 0; i < data.length; i++)
+        data[i].Goals = data[i]["Goals"] * data[i]["90s"];
+
+    data = data.sort((a, b) => b["Goals"] - a["Goals"]).slice(0, 15);
 
     d3.selectAll(".barPlot").remove();
 
