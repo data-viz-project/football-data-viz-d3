@@ -9,6 +9,19 @@ var acronyms = await d3.json("../data/acronyms.json", data => {
 
 
 async function showDashboard() {
+    // sidebar interaction
+    const toggleSidebar = () => {
+        const sidebar = d3.select(".sidebar");
+        if (sidebar.style("display") === "none")
+            sidebar.style("display", "flex")
+        else
+            sidebar.style("display", "none")
+    };
+
+    const sidebar = d3.select(".sidebar-toggle");
+    sidebar.on("click", toggleSidebar);
+
+    // dropmenu interaction
     const dropMenuLeague = d3.select("#pick-league");
 
     dropMenuLeague
@@ -21,7 +34,6 @@ async function showDashboard() {
 
     dropMenuLeague.on('change', async function (event) {
         let league = event.target.value;
-        console.log(league);
 
         // read the CSV
         // Carica il file CSV
@@ -40,9 +52,6 @@ async function showDashboard() {
             return data;
         });
 
-
-        console.log(attk_data);
-
         var cen_data = await d3.csv(`../data/${league}/cen.csv`, data => {
             return data;
         });
@@ -52,6 +61,7 @@ async function showDashboard() {
         });
 
         scatterPlot(attk_data, acronyms);
+        barPlot(attk_data);
     });
 
 
@@ -79,19 +89,8 @@ async function showDashboard() {
         return data;
     });
 
-    const toggleSidebar = () => {
-        const sidebar = d3.select(".sidebar");
-        if (sidebar.style("display") === "none")
-            sidebar.style("display", "flex")
-        else
-            sidebar.style("display", "none")
-    };
-
-    const sidebar = d3.select(".sidebar-toggle");
-    sidebar.on("click", toggleSidebar);
-
     scatterPlot(attk_data, acronyms);
-    barPlot();
+    barPlot(attk_data);
     //starPlot();
     //myTeam(attk_data, cen_data, dif_data);
 }
