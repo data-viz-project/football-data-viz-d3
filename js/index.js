@@ -79,6 +79,17 @@ async function showDashboard() {
         return data;
     });
 
+    const toggleSidebar = () => {
+        const sidebar = d3.select(".sidebar");
+        if (sidebar.style("display") === "none")
+            sidebar.style("display", "flex")
+        else
+            sidebar.style("display", "none")
+    };
+
+    const sidebar = d3.select(".sidebar-toggle");
+    sidebar.on("click", toggleSidebar);
+
     scatterPlot(attk_data, acronyms);
     barPlot();
     //starPlot();

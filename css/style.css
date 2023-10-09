@@ -1,12 +1,71 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
+    align-items: center;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 18vw;
+    background-color: #D3D3D3;
+    display: none;
+    flex-shrink: 0;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.sidebar-toggle {
+    display: flex;
+    padding-left: 10px;
+}
+
+.sidebar-toggle button {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+
+}
+
+.sidebar-title {
+    display: flex;
+}
+
+.sidebar-title h1 {
+    font-size: 1.5rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+.no-sidebar {
+    flex-grow: 1;
+    background-color: #f0f0f0;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin-left: 15px;
-    margin-right: 15px;
 }
+
+.content {
+    display: flex;
+    flex-grow: 1;
+}
+
+#header {
+    display: flex;
+}
+
+#header h1 {
+    flex-grow: 1;
+    text-align: center;
+}
+
 
 h1 {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
@@ -86,7 +145,7 @@ h1 {
 }
 
 .label {
-    font-size: 13px;
+    font-size: 1.3rem;
 }
 
 /*******************/
@@ -110,4 +169,8 @@ h1 {
 
 .svg-style {
     display: flex;
+}
+
+.my-dropdown-toggle::after {
+    content: none;
 }

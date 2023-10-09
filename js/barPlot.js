@@ -100,7 +100,7 @@ function barPlot() {
     bars.append("text")
         .attr("class", "label")
         .attr("y", d => y(d.player) + y.bandwidth() / 2 + 4)
-        .attr("x", d => x(d.value) - 20) // Adjust the x position for the label
+        .attr("x", d => x(d.value) - 30) // Adjust the x position for the label
         .text(d => d.value)
         .style("fill", "white")
         .style("font-weight", "bold")
