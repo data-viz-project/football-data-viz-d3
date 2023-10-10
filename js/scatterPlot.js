@@ -131,7 +131,6 @@ function scatterPlot(players_data, acronyms) {
 
     function drawPoints(x_label, y_label) {
         let minMax = calculateMinMaxValue(x_label, players_data)
-        console.log(minMax);
 
         // Add X axis
         const x = d3.scaleLinear()
@@ -217,12 +216,7 @@ function scatterPlot(players_data, acronyms) {
             .style("class", "scatterDots")
             .on("mouseover", mouseover)
             .on("mouseout", mouseout)
-            .on("mousemove", mousemove)
-            .on("click", (event, d) => {
-                window.scrollTo(0, document.body.scrollHeight);
-                d3.select("#barPlot").style("width", "35%")
-                d3.select("#player-vis").transition().duration(1000).style("width", "65%")
-            });
+            .on("mousemove", mousemove);
 
         points
             .transition()

@@ -114,8 +114,22 @@ h1 {
 /* bar plot style*/
 #barPlot {
     display: flex;
-    width: 70%;
+    width: 80%;
     height: 40vw;
+    flex-direction: column;
+}
+
+.bar-plot-interactions {
+    display: flex;
+    flex-grow: 1;
+}
+
+.bar-plot-interactions button {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1vw;
 }
 
 #player-analysis {
@@ -129,23 +143,10 @@ h1 {
     height: 40vw;
 }
 
-.bar {
-    fill: #0066b2;
-}
-
-.axisBarPlot {
-    font-size: 13px;
-    color: gray;
-}
-
 .axisBarPlot path,
 .axisBarPlot line {
     fill: none;
     display: none;
-}
-
-.label {
-    font-size: 1.3rem;
 }
 
 /*******************/

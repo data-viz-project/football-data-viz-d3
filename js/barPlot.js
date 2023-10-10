@@ -13,14 +13,13 @@ var width = currentWidth - margin.left - margin.right,
     height = currentHeight - margin.top - margin.bottom;
 
 function barPlot(player_data) {
+    d3.select("#showGoals").on("click", function () {
+        updateChart("Goals", player_data);
+    });
 
-    // deep copy of player_data obj
-    var data = JSON.parse(JSON.stringify(player_data))
-
-    for (var i = 0; i < data.length; i++)
-        data[i].Goals = data[i]["Goals"] * data[i]["90s"];
-
-    data = data.sort((a, b) => b["Goals"] - a["Goals"]).slice(0, 15);
+    d3.select("#showAssists").on("click", function () {
+        updateChart("Assists", player_data);
+    });
 
     d3.selectAll(".barPlot").remove();
 
@@ -30,42 +29,79 @@ function barPlot(player_data) {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    const x = d3.scaleLinear()
-        .domain([0, Math.max(...data.map(d => d["Goals"]))])
-        .range([0, width]);
+    // Title for the chart
+    d3.select(".bar-plot-title")
+        .data(player_data)
+        .append("h2")
+        .style("margin-top", "0")
+        .style("margin-bottom", "5")
+        .style("font-size", "2vw")
+        .text(d => (d["Comp"] + " top scorers and assists"));
 
-    const y = d3.scaleBand()
-        .domain(data.map(d => d["Player"]))
-        .range([0, height])
-        .padding(0.15);
 
-    // Make y axis to show bar names
-    const yAxis = d3.axisLeft(y).tickSize(0);
+    function updateChart(metric, p_data) {
+        svg.selectAll(".axisBarPlot").remove(); // remove old axis
+        svg.selectAll(".bar").remove(); // remove old bars
+        svg.selectAll(".label").remove(); // remove old labels
 
-    svg.append("g")
-        .attr("class", "y axisBarPlot")
-        .call(yAxis);
+        // deep copy of player_data obj
+        var data = JSON.parse(JSON.stringify(p_data))
 
-    const bars = svg.selectAll(".bar")
-        .data(data)
-        .enter()
-        .append("g");
+        for (var i = 0; i < data.length; i++)
+            data[i][metric] = data[i][metric] * data[i]["90s"];
 
-    // Append rects
-    bars.append("rect")
-        .attr("class", "bar")
-        .attr("y", d => y(d["Player"]))
-        .attr("height", y.bandwidth())
-        .attr("x", 0)
-        .attr("width", d => x(d["Goals"]));
+        data = data.sort((a, b) => b[metric] - a[metric]).slice(0, 15);
 
-    // Add a value label to the right of each bar
-    bars.append("text")
-        .attr("class", "label")
-        .attr("y", d => y(d["Player"]) + y.bandwidth() / 2 + 4)
-        .attr("x", d => x(d["Goals"]) - 30) // Adjust the x position for the label
-        .text(d => parseInt(d["Goals"]))
-        .style("fill", "white")
-        .style("font-weight", "bold")
+        const x = d3.scaleLinear()
+            .domain([0, Math.max(...data.map(d => d[metric]))])
+            .range([0, width]);
+
+        const y = d3.scaleBand()
+            .domain(data.map(d => d["Player"]))
+            .range([0, height])
+            .padding(0.15);
+
+        // Make y axis to show bar names
+        const yAxis = d3.axisLeft(y).tickSize(0);
+
+        svg.append("g")
+            .attr("class", "y axisBarPlot")
+            .style("font-size", "16px")
+            .style("color", "gray")
+            .call(yAxis);
+
+        const bars = svg.selectAll(".bar")
+            .append("g")
+            .data(data)
+
+        bars.join(
+            enter => enter.append("rect")
+                .attr("class", "bar")
+                .style("fill", "#0066b2")
+                .attr("y", d => y(d["Player"]))
+                .attr("height", y.bandwidth())
+                .attr("x", 0)
+                .attr("width", d => x(d[metric]))
+                .on("mouseover", d => d3.select(this).style("fill", "#005699"))
+                // oppure steelblue
+                .on("mouseout", d => d3.select(this).style("fill", "#0066b2"))
+        )
+
+        bars.join(
+            enter => enter// Add a value label to the right of each bar
+                .append("text")
+                .attr("class", "label")
+                .attr("y", d => y(d["Player"]) + y.bandwidth() / 2 + 7)
+                .attr("x", d => x(d[metric]) - 30) // Adjust the x position for the label
+                .text(d => parseInt(d[metric]))
+                .style("font-size", "23px")
+                .style("fill", "white")
+                .style("font-weight", "bold")
+        )
+
+
+    }
+
+    updateChart("Goals", player_data);
 }
 export { barPlot }
