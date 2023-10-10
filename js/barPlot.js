@@ -13,6 +13,7 @@ var width = currentWidth - margin.left - margin.right,
     height = currentHeight - margin.top - margin.bottom;
 
 function barPlot(player_data) {
+
     d3.select("#showGoals").on("click", function () {
         updateChart("Goals", player_data);
     });
@@ -23,13 +24,10 @@ function barPlot(player_data) {
 
     d3.selectAll(".barPlot").remove();
 
-    var svg = d3.select("#barPlot").append("svg")
-        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-        .attr("class", "barPlot")
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    // Rimuovi il vecchio titolo
+    d3.select(".bar-plot-title").select("h2").remove();
 
-    // Title for the chart
+    // Aggiungi il nuovo titolo
     d3.select(".bar-plot-title")
         .data(player_data)
         .append("h2")
@@ -38,14 +36,19 @@ function barPlot(player_data) {
         .style("font-size", "2vw")
         .text(d => (d["Comp"] + " top scorers and assists"));
 
+    var svg = d3.select("#barPlot").append("svg")
+        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr("class", "barPlot")
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 
     function updateChart(metric, p_data) {
         svg.selectAll(".axisBarPlot").remove(); // remove old axis
-        svg.selectAll(".bar").remove(); // remove old bars
         svg.selectAll(".label").remove(); // remove old labels
 
         // deep copy of player_data obj
-        var data = JSON.parse(JSON.stringify(p_data))
+        var data = JSON.parse(JSON.stringify(p_data));
 
         for (var i = 0; i < data.length; i++)
             data[i][metric] = data[i][metric] * data[i]["90s"];
@@ -71,36 +74,43 @@ function barPlot(player_data) {
             .call(yAxis);
 
         const bars = svg.selectAll(".bar")
-            .append("g")
-            .data(data)
+            .data(data);
 
-        bars.join(
-            enter => enter.append("rect")
-                .attr("class", "bar")
-                .style("fill", "#0066b2")
-                .attr("y", d => y(d["Player"]))
-                .attr("height", y.bandwidth())
-                .attr("x", 0)
-                .attr("width", d => x(d[metric]))
-                .on("mouseover", d => d3.select(this).style("fill", "#005699"))
-                // oppure steelblue
-                .on("mouseout", d => d3.select(this).style("fill", "#0066b2"))
-        )
+        // Enter selection
+        const enterBars = bars.enter()
+            .append("rect")
+            .attr("class", "bar")
+            .style("fill", "#0066b2")
+            .attr("y", d => y(d["Player"]))
+            .attr("height", y.bandwidth())
+            .attr("x", 0);
 
-        bars.join(
-            enter => enter// Add a value label to the right of each bar
-                .append("text")
-                .attr("class", "label")
-                .attr("y", d => y(d["Player"]) + y.bandwidth() / 2 + 7)
-                .attr("x", d => x(d[metric]) - 30) // Adjust the x position for the label
-                .text(d => parseInt(d[metric]))
-                .style("font-size", "23px")
-                .style("fill", "white")
-                .style("font-weight", "bold")
-        )
+        // Update selection (including transition)
+        bars.merge(enterBars)
+            .transition()
+            .duration(800)
+            .attr("width", d => x(d[metric]))
+            .on("end", () => {
+                // Add labels after the transition is complete
+                svg.selectAll(".label")
+                    .data(data)
+                    .enter()
+                    .append("text")
+                    .attr("class", "label")
+                    .attr("y", d => y(d["Player"]) + y.bandwidth() / 2 + 7)
+                    .attr("x", d => x(d[metric]) - 30)
+                    .text(d => parseInt(d[metric]))
+                    .style("font-size", "23px")
+                    .style("fill", "white")
+                    .style("font-weight", "bold");
+            });
 
-
+        // Exit selection
+        bars.exit().remove();
     }
+
+
+
 
     updateChart("Goals", player_data);
 }
