@@ -6,6 +6,18 @@ var acronyms = await d3.json("../data/acronyms.json", data => {
     return data;
 });
 
+// read the csv dataset
+var attk_data = await d3.csv('../data/dataset-preproc/attk.csv', data => {
+    for (var key in data) {
+        if (key === "Player" || key === "Comp" || key === "Squad" || key === "PlayerFaceUrl" || key === "ClubLogoUrl" || key === "Pos")
+            data[key] = data[key];
+        else
+            data[key] = parseFloat(data[key]);
+    }
+    return data;
+});
+
+
 
 async function showDashboard() {
     // sidebar interaction
@@ -21,75 +33,52 @@ async function showDashboard() {
     sidebar.on("click", toggleSidebar);
 
     // dropmenu interaction
-    const dropMenuLeague = d3.select("#pick-league");
+    const selectedLeagues = new Set();
 
-    dropMenuLeague
-        .selectAll("option")
-        .data(["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1"])
-        .enter()
-        .append("option")
-        .attr("value", d => d)
-        .text(d => d);
+    var checkboxData = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1"];
 
-    dropMenuLeague.on('change', async function (event) {
-        let league = event.target.value;
+    d3.select("#dropMenuLeague")
+        .selectAll("input")
+        .data(checkboxData)
+        .join(
+            enter => enter.append("input")
+                .attr("type", "checkbox")
+                .attr("class", "checkbox")
+                .attr("value", d => d)
+                .attr("checked", d => d === "Serie A" ? "checked" : null)
+                .on("change", (event) => {
+                    d3.selectAll(".checkbox").each((function (d) {
+                        if (d3.select(this).property("checked")) {
+                            selectedLeagues.add(d)
+                            loadAndDisplayData(selectedLeagues)
+                        }
+                        else {
+                            selectedLeagues.delete(d)
+                            loadAndDisplayData(selectedLeagues)
+                        }
+                    }))
+                })
+        );
 
-        // read the CSV
-        // Carica il file CSV
-        var attk_data = await d3.csv(`../data/${league}/attk.csv`, data => {
-            // Cicla attraverso ciascun record nel CSV
-            for (var key in data) {
-                // Controlla se la chiave è una delle feature da convertire a numero
-                if (key === "Player" || key === "Comp" || key === "Squad") {
-                    // Lascia il valore come stringa
-                    data[key] = data[key];
-                } else {
-                    // Altrimenti, converte il valore in numero (se possibile)
-                    data[key] = parseFloat(data[key]);
-                }
-            }
-            return data;
-        });
+    async function loadAndDisplayData(leagueSet) {
+        const leaguesArray = Array.from(leagueSet);
 
-        var cen_data = await d3.csv(`../data/${league}/cen.csv`, data => {
-            return data;
-        });
+        let selectedData = await loadSelectedData(leaguesArray);
 
-        var dif_data = await d3.csv(`../data/${league}/dif.csv`, data => {
-            return data;
-        });
+        scatterPlot(selectedData, acronyms);
+        barPlot(selectedData);
+    }
 
-        scatterPlot(attk_data, acronyms);
-        barPlot(attk_data);
-    });
+    async function loadSelectedData(selectedLeagues) {
+        var selectedData = attk_data.filter(d => d["Comp"] === selectedLeagues[0])
 
+        for (let i = 1; i < selectedLeagues.length; i++)
+            selectedData = selectedData.concat(attk_data.filter(d => d["Comp"] === selectedLeagues[i]));
 
-    // read the CSV
-    var attk_data = await d3.csv(`../data/${dropMenuLeague.property('value')}/attk.csv`, data => {
-        // Cicla attraverso ciascun record nel CSV
-        for (var key in data) {
-            // Controlla se la chiave è una delle feature da convertire a numero
-            if (key === "Player" || key === "Comp" || key === "Squad") {
-                // Lascia il valore come stringa
-                data[key] = data[key];
-            } else {
-                // Altrimenti, converte il valore in numero (se possibile)
-                data[key] = parseFloat(data[key]);
-            }
-        }
-        return data;
-    });
+        return selectedData;
+    }
 
-    var cen_data = await d3.csv(`../data/${dropMenuLeague.property('value')}/cen.csv`, data => {
-        return data;
-    });
-
-    var dif_data = await d3.csv(`../data/${dropMenuLeague.property('value')}/dif.csv`, data => {
-        return data;
-    });
-
-    scatterPlot(attk_data, acronyms);
-    barPlot(attk_data);
+    loadAndDisplayData([checkboxData[0]])
 }
 
 showDashboard();
