@@ -38,27 +38,40 @@ async function showDashboard() {
     var checkboxData = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1"];
 
     d3.select("#dropMenuLeague")
-        .selectAll("input")
+        .selectAll("div") // Usiamo un contenitore div per ciascuna coppia di checkbox e label
         .data(checkboxData)
         .join(
-            enter => enter.append("input")
-                .attr("type", "checkbox")
-                .attr("class", "checkbox")
-                .attr("value", d => d)
-                .attr("checked", d => d === "Serie A" ? "checked" : null)
-                .on("change", (event) => {
-                    d3.selectAll(".checkbox").each((function (d) {
-                        if (d3.select(this).property("checked")) {
-                            selectedLeagues.add(d)
-                            loadAndDisplayData(selectedLeagues)
-                        }
-                        else {
-                            selectedLeagues.delete(d)
-                            loadAndDisplayData(selectedLeagues)
-                        }
-                    }))
-                })
+            enter => {
+                const group = enter.append("div") // Crea un div per ogni gruppo di checkbox-label e il rettangolo
+                    .style("border", "4px solid #ccc") // Aggiungi un bordo al gruppo
+                    .style("margin", "5px"); // Aggiungi margine al gruppo
+
+                const label = group.append("label") // Aggiungi una label al gruppo
+                    .attr("for", d => "checkbox-" + d) // Associa la label alla checkbox tramite l'attributo "for"
+                    .text(d => d) // Il testo della label è il valore d
+                    .style("color", "rgb(128, 128, 128)")
+                    .style("padding", "10px");
+
+                const checkbox = group.append("input") // Aggiungi la checkbox al gruppo
+                    .attr("type", "checkbox")
+                    .attr("class", "checkbox")
+                    .attr("value", d => d)
+                    .attr("checked", d => d === "Serie A" ? "checked" : null)
+                    .on("change", (event) => {
+                        d3.selectAll(".checkbox").each(function (d) {
+                            if (d3.select(this).property("checked")) {
+                                selectedLeagues.add(d);
+                                loadAndDisplayData(selectedLeagues);
+                            } else {
+                                selectedLeagues.delete(d);
+                                loadAndDisplayData(selectedLeagues);
+                            }
+                        });
+                    });
+            }
         );
+
+
 
     async function loadAndDisplayData(leagueSet) {
         const leaguesArray = Array.from(leagueSet);

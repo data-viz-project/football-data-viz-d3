@@ -101,9 +101,15 @@ h1 {
 
 .data-interaction {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+.interaction-title h2 {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin: 7px;
 }
 
 .tooltip {
