@@ -55,6 +55,9 @@ body {
 .content {
     display: flex;
     flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 #header {
@@ -78,9 +81,6 @@ h1 {
 #choosing-players {
     width: 100%;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
 }
 
 #scatter-plot {
@@ -121,7 +121,6 @@ h1 {
 
 .bar-plot-interactions {
     display: flex;
-    flex-grow: 1;
 }
 
 .bar-plot-interactions button {

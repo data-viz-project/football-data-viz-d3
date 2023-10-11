@@ -1,9 +1,6 @@
-const margin = { top: 10, right: 30, bottom: 50, left: 80 }
-var width = 100
-var height = 100
-
-var width_graph = parseInt(d3.select('#scatter-plot').style('width'), 10) / 1.1
-var height_graph = parseInt(d3.select('#scatter-plot').style('height'), 10) / 1.3
+const margin = { top: 10, right: 30, bottom: 80, left: 80 },
+    width = parseInt(d3.select('#scatter-plot').style('width'), 10) - margin.left - margin.right,
+    height = parseInt(d3.select('#scatter-plot').style('height'), 10) - margin.top - margin.bottom;
 
 let common_features = ["Player", "Squad", "Comp", "MP", "Min", "Pos"]
 
@@ -116,8 +113,7 @@ function scatterPlot(players_data, acronyms) {
     const svg = container
         .append("svg")
         .attr("class", "scatterPlot")
-        .attr("width", `${width}%`)
-        .attr("height", `${height}%`)
+        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
         .append("g")
         .attr("transform",
             `translate(${margin.left}, ${margin.top})`);
@@ -135,14 +131,14 @@ function scatterPlot(players_data, acronyms) {
         // Add X axis
         const x = d3.scaleLinear()
             .domain([minMax[0], minMax[1]])
-            .range([0, width_graph]);
+            .range([0, width]);
 
         svg.selectAll(".axis").remove();
 
         // Append a new X axis group
         var axis_x = svg.append("g")
             .attr("class", "axis")
-            .attr("transform", `translate(0, ${height_graph})`)
+            .attr("transform", `translate(0, ${height})`)
             .attr("opacity", "0"); // Start with opacity set to 0
 
         // Transition the opacity of the old axis to 0
@@ -162,7 +158,7 @@ function scatterPlot(players_data, acronyms) {
         // Add Y axis
         const y = d3.scaleLinear()
             .domain([minMax[0], minMax[1]])
-            .range([height_graph, 0]);
+            .range([height, 0]);
 
         let axis_y = svg.append("g")
             .attr("class", "axis")
@@ -184,8 +180,8 @@ function scatterPlot(players_data, acronyms) {
         svg.append("text")
             .attr("class", "axis-label")
             .attr("text-anchor", "end")
-            .attr("x", width_graph / 2 + 30)
-            .attr("y", height_graph + 40)
+            .attr("x", width / 2 + 30)
+            .attr("y", height + 40)
             .text(acronyms[x_label]);
 
         // Y axis label:
@@ -194,7 +190,7 @@ function scatterPlot(players_data, acronyms) {
             .attr("text-anchor", "end")
             .attr("transform", "rotate(-90)")
             .attr("y", -margin.left + 20)
-            .attr("x", height / -3)
+            .attr("x", height / -8)
             .text(acronyms[y_label])
 
         d3.select("#scatter-plot")

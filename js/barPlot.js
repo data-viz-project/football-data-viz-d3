@@ -47,10 +47,14 @@ function barPlot(player_data) {
         // deep copy of player_data obj
         var data = JSON.parse(JSON.stringify(p_data));
 
-        for (var i = 0; i < data.length; i++)
-            data[i][metric] = data[i][metric] * data[i]["90s"];
+        for (var i = 0; i < data.length; i++) {
+            data[i][metric] = Math.round(data[i][metric] * data[i]["90s"]);
+        }
+
 
         data = data.sort((a, b) => b[metric] - a[metric]).slice(0, 15);
+
+        console.log(data);
 
         const x = d3.scaleLinear()
             .domain([0, Math.max(...data.map(d => d[metric]))])
