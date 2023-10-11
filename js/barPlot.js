@@ -14,20 +14,17 @@ var width = currentWidth - margin.left - margin.right,
 
 function barPlot(player_data) {
 
-    d3.select("#showGoals").on("click", function () {
+    d3.select("#showGoals").on("click", () => {
         updateChart("Goals", player_data);
     });
 
-    d3.select("#showAssists").on("click", function () {
+    d3.select("#showAssists").on("click", () => {
         updateChart("Assists", player_data);
     });
 
     d3.selectAll(".barPlot").remove();
-
-    // Rimuovi il vecchio titolo
     d3.select(".bar-plot-title").select("h2").remove();
 
-    // Aggiungi il nuovo titolo
     d3.select(".bar-plot-title")
         .data(player_data)
         .append("h2")
@@ -104,13 +101,7 @@ function barPlot(player_data) {
                     .style("fill", "white")
                     .style("font-weight", "bold");
             });
-
-        // Exit selection
-        bars.exit().remove();
     }
-
-
-
 
     updateChart("Goals", player_data);
 }
