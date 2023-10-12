@@ -121,7 +121,7 @@ h1 {
 #barPlot {
     display: flex;
     width: 80%;
-    height: 40vw;
+    height: 45vw;
     flex-direction: column;
 }
 

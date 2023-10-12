@@ -79,7 +79,7 @@ async function showDashboard() {
         let selectedData = await loadSelectedData(leaguesArray);
 
         scatterPlot(selectedData, acronyms);
-        barPlot(selectedData);
+        barPlot(selectedData, leaguesArray);
     }
 
     async function loadSelectedData(selectedLeagues) {

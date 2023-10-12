@@ -12,26 +12,43 @@ var currentHeight = parseInt(d3.select('#barPlot').style('height'), 10)
 var width = currentWidth - margin.left - margin.right,
     height = currentHeight - margin.top - margin.bottom;
 
-function barPlot(player_data) {
+var backgroundButtonColor = "#f0f0f0"
+var buttonColor = "#36454F"
 
-    d3.select("#showGoals").on("click", () => {
-        updateChart("Goals", player_data);
-    });
+function barPlot(player_data, leaguesArray) {
+    d3.select("#showGoals")
+        .style("background-color", backgroundButtonColor)
+        .style("color", buttonColor)
+        .style("border", "1px solid")
+        .style("padding", "0.4em 0.4em 0.4em")
+        .on("click", () => {
+            d3.select("#showAssists")
+                .style("background-color", backgroundButtonColor)
+                .style("color", buttonColor)
 
-    d3.select("#showAssists").on("click", () => {
-        updateChart("Assists", player_data);
-    });
+            d3.select("#showGoals")
+                .style("background-color", buttonColor)
+                .style("color", backgroundButtonColor)
+            updateChart("Goals", player_data);
+        });
+
+    d3.select("#showAssists")
+        .style("background-color", backgroundButtonColor)
+        .style("color", buttonColor)
+        .style("border", "1px solid")
+        .style("padding", "0.4em 0.4em 0.4em")
+        .on("click", () => {
+            d3.select("#showGoals")
+                .style("background-color", backgroundButtonColor)
+                .style("color", buttonColor)
+
+            d3.select("#showAssists")
+                .style("background-color", buttonColor)
+                .style("color", backgroundButtonColor)
+            updateChart("Assists", player_data);
+        });
 
     d3.selectAll(".barPlot").remove();
-    d3.select(".bar-plot-title").select("h2").remove();
-
-    d3.select(".bar-plot-title")
-        .data(player_data)
-        .append("h2")
-        .style("margin-top", "0")
-        .style("margin-bottom", "5")
-        .style("font-size", "2vw")
-        .text(d => (d["Comp"] + " top scorers and assists"));
 
     var svg = d3.select("#barPlot").append("svg")
         .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
@@ -43,6 +60,39 @@ function barPlot(player_data) {
     function updateChart(metric, p_data) {
         svg.selectAll(".axisBarPlot").remove(); // remove old axis
         svg.selectAll(".label").remove(); // remove old labels
+        d3.select(".bar-plot-title").select("h2").remove();
+        d3.select(".badge-container").remove();
+
+        var barPlotTitle = d3.select(".bar-plot-title")
+
+        barPlotTitle
+            .append("h2")
+            .style("margin-top", "0px")
+            .style("margin-bottom", "2.5vh")
+            .style("font-size", "2vw")
+            .text("Top scorers and assists")
+
+        var colorScale = d3.scaleOrdinal(d3.schemeTableau10);
+
+        var badgeContainer = barPlotTitle.append("div")
+            .style("margin-bottom", "15px")
+            .attr("class", "badge-container");
+
+        var badges = badgeContainer.selectAll("span")
+            .data(leaguesArray)
+            .enter()
+            .append("span")
+            .attr("class", "badge")
+            .text(d => d)
+            .style("font-size", "1vw")
+            .style("background-color", (d, i) => colorScale(i))
+            .style("margin", "5px");
+
+        badges.style("color", "white")
+            .style("padding", "4px 8px")
+            .style("text-align", "center")
+            .style("border-radius", "5px");
+
 
         // deep copy of player_data obj
         var data = JSON.parse(JSON.stringify(p_data));
@@ -53,8 +103,6 @@ function barPlot(player_data) {
 
 
         data = data.sort((a, b) => b[metric] - a[metric]).slice(0, 15);
-
-        console.log(data);
 
         const x = d3.scaleLinear()
             .domain([0, Math.max(...data.map(d => d[metric]))])
@@ -107,6 +155,7 @@ function barPlot(player_data) {
             });
     }
 
+    d3.select("#showGoals").dispatch("click"); // Goals at the startup'll be clicked
     updateChart("Goals", player_data);
 }
 export { barPlot }

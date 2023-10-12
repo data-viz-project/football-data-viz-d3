@@ -1,4 +1,4 @@
-const margin = { top: 10, right: 30, bottom: 80, left: 80 },
+const margin = { top: 20, right: 30, bottom: 80, left: 80 },
     width = parseInt(d3.select('#scatter-plot').style('width'), 10) - margin.left - margin.right,
     height = parseInt(d3.select('#scatter-plot').style('height'), 10) - margin.top - margin.bottom;
 
@@ -40,69 +40,80 @@ var shuffleArray = function shuffleArray(array) {
     return array;
 }
 
-var tooltip = d3.select("#scatter-plot")
-    .append("div")
-    .style("opacity", 0)
-    .attr("class", "tooltip")
-    .style("background-color", "white")
-    .style("border", "solid")
-    .style("border-width", "1px")
-    .style("border-radius", "5px")
-    .style("padding", "10px");
-
-var mouseover = function (event, d) {
-    d3.selectAll(".scatterDots")
-        .attr("r", 7)
-        .style("fill", "white")
-
-    //change color to a point
-    d3.select(this)
-        .transition()
-        .duration(200)
-        .attr("r", 12)
-        .style("fill", "green");
-
-    tooltip
-        .transition()
-        .duration(200)
-        .style("opacity", 1);
-};
-
-var mouseout = function (event, d) {
-    d3.select(this)
-        .transition()
-        .duration(200)
-        .style("fill", "white")
-        .attr("r", 7);
-
-    tooltip
-        .transition()
-        .duration(200)
-        .style("opacity", 0);
-}
 
 
 function scatterPlot(players_data, acronyms) {
+    var tooltip = d3.select("#scatter-plot")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "1px")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+        .style("display", "flex")
+        .style("flex-direction", "row"); // Imposta il flex-direction a "column" per posizionare i div dei dati uno sotto l'altro.
+
+    var mouseover = function (event, d) {
+        d3.selectAll(".scatterDots")
+            .attr("r", 7)
+            .style("fill", "white")
+
+        d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("r", 12)
+            .style("fill", "green");
+
+        tooltip
+            .transition()
+            .duration(200)
+            .style("opacity", 1);
+    };
+
+    var mouseout = function (event, d) {
+        d3.select(this)
+            .transition()
+            .duration(200)
+            .style("fill", "white")
+            .attr("r", 7);
+
+        tooltip
+            .transition()
+            .duration(200)
+            .style("opacity", 0);
+    }
 
     var mousemove = function (event, d) {
         let x_label = d3.select("#x-axis").property("value")
         let y_label = d3.select("#y-axis").property("value")
 
+        tooltip.html(""); // Cancella il contenuto esistente.
+
         tooltip
-            .html(acronyms["Player"] + ": " + d.Player)
-            .style("font-size", "14px")
             .style('left', event.pageX - 100 + 'px')
             .style('top', event.pageY - 85 + 'px');
 
-        tooltip.append("div")
-            .html(acronyms[x_label] + ": " + d[x_label])
-            .style('left', event.pageX + 'px')
-            .style('top', event.pageY + 8 + 'px');
+        const playerExactValue = tooltip
+            .append("div")
+            .style("padding-right", "1vw")
+            .style("display", "flex")
+            .style("flex-direction", "column")
+            .style("flex-grow", "1")
 
-        tooltip.append("div")
+        playerExactValue.append("div")
+            .html("Player: " + d["Player"])
+
+        playerExactValue.append("div")
+            .html(acronyms[x_label] + ": " + d[x_label])
+
+        playerExactValue.append("div")
             .html(acronyms[y_label] + ": " + d[y_label])
-            .style('left', event.pageX + 'px')
-            .style('top', event.pageY + 8 + 'px');
+
+        //tooltip
+        //    .append("div")
+        //    .html('<img src="' + d["PlayerFaceUrl"] + '" width="50" height="50"/>')
     }
 
     d3.selectAll(".scatterPlot").remove();
@@ -117,7 +128,6 @@ function scatterPlot(players_data, acronyms) {
         .append("g")
         .attr("transform",
             `translate(${margin.left}, ${margin.top})`);
-
 
     svg.selectAll(".group").remove();
 
