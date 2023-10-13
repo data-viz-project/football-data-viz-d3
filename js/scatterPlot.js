@@ -111,9 +111,9 @@ function scatterPlot(players_data, acronyms) {
         playerExactValue.append("div")
             .html(acronyms[y_label] + ": " + d[y_label])
 
-        //tooltip
-        //    .append("div")
-        //    .html('<img src="' + d["PlayerFaceUrl"] + '" width="50" height="50"/>')
+        tooltip
+            .append("div")
+            .html('<img src="' + d["PlayerFaceUrl"] + '" width="50" height="50"/>')
     }
 
     d3.selectAll(".scatterPlot").remove();
