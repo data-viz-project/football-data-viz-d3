@@ -103,13 +103,13 @@ function scatterPlot(players_data, acronyms) {
             .style("flex-grow", "1")
 
         playerExactValue.append("div")
-            .html("Player: " + d["Player"])
+            .html("Player" + ": <span style='font-weight: bold;'>" + d["Player"] + "</span>");
 
         playerExactValue.append("div")
-            .html(acronyms[x_label] + ": " + d[x_label])
+            .html(acronyms[x_label] + ": <span style='font-weight: bold;'>" + d[x_label] + "</span>");
 
         playerExactValue.append("div")
-            .html(acronyms[y_label] + ": " + d[y_label])
+            .html(acronyms[y_label] + ": <span style='font-weight: bold;'>" + d[y_label] + "</span>");
 
         tooltip
             .append("div")

@@ -118,7 +118,7 @@ function barPlot(player_data, leaguesArray) {
 
         svg.append("g")
             .attr("class", "y axisBarPlot")
-            .style("font-size", "16px")
+            .style("font-size", "1.1vw")
             .style("color", "gray")
             .call(yAxis);
 
@@ -149,7 +149,7 @@ function barPlot(player_data, leaguesArray) {
                     .attr("y", d => y(d["Player"]) + y.bandwidth() / 2 + 7)
                     .attr("x", d => x(d[metric]) - 30)
                     .text(d => parseInt(d[metric]))
-                    .style("font-size", "23px")
+                    .style("font-size", "1.5vw")
                     .style("fill", "white")
                     .style("font-weight", "bold");
             });
