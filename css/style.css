@@ -73,8 +73,8 @@ body {
 h1 {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     font-weight: bold;
-    font-size: 50px;
-    margin: 10px;
+    font-size: 3.5vw;
+    margin: 1%;
 }
 
 /*scatter plot and bar plot style*/
@@ -92,11 +92,37 @@ h1 {
     align-items: center;
 }
 
+.scatter-plot-interaction {
+    width: 80%;
+    display: flex;
+    margin: 10px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+}
+
 .axis-interaction {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    flex-grow: 1;
+    /* padding-right: 12.5%; */
+}
+
+.axis-interaction .flex-item p {
+    font-size: 1.1vw;
+    font-weight: bold;
+}
+
+.axis-interaction .flex-item select {
+    color: #36454F;
+    background-color: #f0f0f0;
+    border: 1px solid;
+    padding: 0.2em 0.2em 0.2em;
+    width: 6.5vw;
 }
 
 .data-interaction {
@@ -155,14 +181,6 @@ h1 {
 }
 
 /*******************/
-
-.flex-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    margin: 10px;
-}
 
 .flex-item {
     display: flex;

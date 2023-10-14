@@ -227,10 +227,38 @@ function scatterPlot(players_data, acronyms) {
         points
             .transition()
             .duration(1000)
+            .attr("id", function (d) {
+                // Dividi il nome completo in spazi e prendi il secondo elemento come cognome
+                const nameParts = d.Player.split(" ");
+                if (nameParts.length > 1) {
+                    return nameParts[1].toLowerCase();
+                } else {
+                    return d.Player.toLowerCase(); // Se il nome non ha spazi, usa il nome completo come ID
+                }
+            })
+
             .attr("cx", function (d) { return x(d[x_label]); })
             .attr("cy", function (d) { return y(d[y_label]); })
             .attr("r", 7);
     }
+
+    d3.select("#search-bar")
+        .on("input", function () {
+            d3.selectAll("circle")
+                .attr("r", 7)
+                .style("fill", "white")
+
+            const searchQuery = this.value.toLowerCase();
+
+            d3.select("#" + searchQuery)
+                .transition()
+                .duration(200)
+                .attr("r", 15)
+                .style("fill", "green");
+        });
+
+
+
 
     const dropMenuX = d3.select("#x-axis");
     const dropMenuY = d3.select("#y-axis");
