@@ -2,22 +2,6 @@ const margin = { top: 20, right: 30, bottom: 80, left: 80 },
     width = parseInt(d3.select('#scatter-plot').style('width'), 10) - margin.left - margin.right,
     height = parseInt(d3.select('#scatter-plot').style('height'), 10) - margin.top - margin.bottom;
 
-let common_features = ["Player", "Squad", "Comp", "MP", "Min", "Pos"]
-
-var forward_features = ["Goals", "Shots", "SoT", "G/Sh", "G/SoT", "ShoDist", "GCA", "SCA", "Off", "PKwon", "ScaDrib", "Assists",
-    "ScaPassLive", "Car3rd", "ScaFld", "Carries", "CarTotDist", "CarPrgDist", 'CPA', "CarMis", "CarDis"]
-
-var midfielder_features = ["Goals", "PasTotCmp", "PasTotCmp%", "PasTotDist", "PasTotPrgDist", "Assists", "PasAss", "Pas3rd", "Crs", "PasCmp",
-    "PasOff", "PasBlocks", "SCA", "ScaPassLive", "ScaPassDead", "ScaDrib", "ScaSh", "ScaFld", "GCA", "GcaPassLive",
-    "GcaPassDead", "GcaDrib", "GcaSh", "GcaFld", "Tkl", "TklWon", "TklDef3rd", "TklMid3rd", "TklAtt3rd", "TklDri",
-    "TklDriAtt", "TklDri%", "TklDriPast", "Blocks", "BlkSh", "Int", "Recov", "Carries", "CarTotDist", "CarPrgDist", "Fld"]
-
-var defender_features = ["PasTotCmp", "PasTotDist", "PasTotPrgDist", "Tkl", "TklWon", "TklDef3rd", "TklMid3rd", "TklAtt3rd", "TklDri", "TklDriAtt", "TklDriPast", "Blocks",
-    "BlkSh", "Int", "Tkl+Int", "Recov", "AerWon", "AerLost", "Carries", "CarTotDist", "CarPrgDist", "CrdY", "CrdR", "Fls", "Clr"]
-
-// variable to change set of features
-var position = "attk";
-
 var calculateMinMaxValue = function (feature, data) {
     let minMax = d3.extent(data, function (d) {
         return d[feature];
@@ -26,23 +10,19 @@ var calculateMinMaxValue = function (feature, data) {
 };
 
 
-var shuffleArray = function shuffleArray(array) {
-    for (var i = array.length - 1; i > 0; i--) {
-
-        // Generate random number 
-        var j = Math.floor(Math.random() * (i + 1));
-
-        var temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
+var reverseArray = function reverseArray(arr) {
+    var reversed = [];
+    for (var i = arr.length - 1; i >= 0; i--) {
+        reversed.push(arr[i]);
     }
-
-    return array;
+    return reversed;
 }
 
 
 
-function scatterPlot(players_data, acronyms) {
+
+function scatterPlot(players_data, acronyms, features) {
+    console.log(features)
     var tooltip = d3.select("#scatter-plot")
         .append("div")
         .style("opacity", 0)
@@ -263,9 +243,12 @@ function scatterPlot(players_data, acronyms) {
     const dropMenuX = d3.select("#x-axis");
     const dropMenuY = d3.select("#y-axis");
 
+    dropMenuX.selectAll("option").remove();
+    dropMenuY.selectAll("option").remove();
+
     dropMenuX
         .selectAll("option")
-        .data(function () { if (position == "attk") return forward_features; })
+        .data(function () { return features; })
         .enter()
         .append("option")
         .attr("value", d => d)
@@ -277,7 +260,7 @@ function scatterPlot(players_data, acronyms) {
 
     dropMenuY
         .selectAll("option")
-        .data(function () { if (position == "attk") return shuffleArray(forward_features); })
+        .data(function () { return reverseArray(features); })
         .enter()
         .append("option")
         .attr("value", d => d)

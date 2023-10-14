@@ -7,7 +7,7 @@ var acronyms = await d3.json("../data/acronyms.json", data => {
 });
 
 // read the csv dataset
-var attk_data = await d3.csv('../data/dataset-preproc/attk.csv', data => {
+var data = await d3.csv('../data/dataset-preproc/forward.csv', data => {
     for (var key in data) {
         if (key === "Player" || key === "Comp" || key === "Squad" || key === "PlayerFaceUrl" || key === "ClubLogoUrl" || key === "Pos")
             data[key] = data[key];
@@ -17,6 +17,8 @@ var attk_data = await d3.csv('../data/dataset-preproc/attk.csv', data => {
     return data;
 });
 
+var features = ["Goals", "Shots", "SoT", "G/Sh", "G/SoT", "ShoDist", "GCA", "SCA", "Off", "PKwon", "ScaDrib", "Assists",
+    "ScaPassLive", "Car3rd", "ScaFld", "Carries", "CarTotDist", "CarPrgDist", 'CPA', "CarMis", "CarDis"]
 
 
 async function showDashboard() {
@@ -34,16 +36,17 @@ async function showDashboard() {
 
     // dropmenu interaction
     const selectedLeagues = new Set();
+    selectedLeagues.add("Serie A")
 
     var checkboxData = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1"];
 
     d3.select("#dropMenuLeague")
-        .selectAll("div") // Usiamo un contenitore div per ciascuna coppia di checkbox e label
+        .selectAll("div")
         .data(checkboxData)
         .join(
             enter => {
-                const group = enter.append("div") // Crea un div per ogni gruppo di checkbox-label e il rettangolo
-                    .style("border", "4px solid #ccc") // Aggiungi un bordo al gruppo
+                const group = enter.append("div")
+                    .style("border", "4px solid #ccc")
                     .style("margin", "5px"); // Aggiungi margine al gruppo
 
                 const label = group.append("label") // Aggiungi una label al gruppo
@@ -61,37 +64,78 @@ async function showDashboard() {
                         d3.selectAll(".checkbox").each(function (d) {
                             if (d3.select(this).property("checked")) {
                                 selectedLeagues.add(d);
-                                loadAndDisplayData(selectedLeagues);
+                                loadAndDisplayData(selectedLeagues, data, features);
                             } else {
                                 selectedLeagues.delete(d);
-                                loadAndDisplayData(selectedLeagues);
+                                loadAndDisplayData(selectedLeagues, data, features);
                             }
                         });
                     });
             }
         );
+    const playerTypeSelect = d3.select("#pick-position");
+
+    playerTypeSelect
+        .selectAll("option")
+        .data(["Forward", "Midfielder", "Defender"])
+        .enter()
+        .append("option")
+        .attr("value", d => d)
+        .text(d => d);
+
+    playerTypeSelect.on("change", async function (d, event) {
+        if (this.value.toLowerCase() === "forward")
+            features = ["Goals", "Shots", "SoT", "G/Sh", "G/SoT", "ShoDist", "GCA", "SCA", "Off", "PKwon", "ScaDrib", "Assists",
+                "ScaPassLive", "Car3rd", "ScaFld", "Carries", "CarTotDist", "CarPrgDist", 'CPA', "CarMis", "CarDis"]
+        else if (this.value.toLowerCase() === "midfielder")
+            features = ["Goals", "PasTotCmp", "PasTotCmp%", "PasTotDist", "PasTotPrgDist", "Assists", "PasAss", "Pas3rd", "Crs", "PasCmp",
+                "PasOff", "PasBlocks", "SCA", "ScaPassLive", "ScaPassDead", "ScaDrib", "ScaSh", "ScaFld", "GCA", "GcaPassLive",
+                "GcaPassDead", "GcaDrib", "GcaSh", "GcaFld", "Tkl", "TklWon", "TklDef3rd", "TklMid3rd", "TklAtt3rd", "TklDri",
+                "TklDriAtt", "TklDri%", "TklDriPast", "Blocks", "BlkSh", "Int", "Recov", "Carries", "CarTotDist", "CarPrgDist", "Fld"]
+        else
+            features = ["PasTotCmp", "PasTotDist", "PasTotPrgDist", "Tkl", "TklWon", "TklDef3rd", "TklMid3rd", "TklAtt3rd", "TklDri", "TklDriAtt", "TklDriPast", "Blocks",
+                "BlkSh", "Int", "Tkl+Int", "Recov", "AerWon", "AerLost", "Carries", "CarTotDist", "CarPrgDist", "CrdY", "CrdR", "Fls", "Clr"]
+
+        // read the CSV
+        data = await d3.csv(`../data/dataset-preproc/${this.value.toLowerCase()}.csv`, data => {
+            for (var key in data) {
+                if (key === "Player" || key === "Comp" || key === "Squad" || key === "PlayerFaceUrl" || key === "ClubLogoUrl" || key === "Pos")
+                    data[key] = data[key];
+                else
+                    data[key] = parseFloat(data[key]);
+            }
+            return data;
+        });
+
+        console.log(data)
+
+        loadAndDisplayData(selectedLeagues, data, features);
+    });
 
 
 
-    async function loadAndDisplayData(leagueSet) {
+    async function loadAndDisplayData(leagueSet, data, features) {
         const leaguesArray = Array.from(leagueSet);
 
-        let selectedData = await loadSelectedData(leaguesArray);
+        let selectedData = await loadSelectedData(leaguesArray, data);
 
-        scatterPlot(selectedData, acronyms);
+        console.log(features)
+
+        scatterPlot(selectedData, acronyms, features);
         barPlot(selectedData, leaguesArray);
     }
 
-    async function loadSelectedData(selectedLeagues) {
-        var selectedData = attk_data.filter(d => d["Comp"] === selectedLeagues[0])
+    async function loadSelectedData(selectedLeagues, data) {
+        var selectedData = data.filter(d => d["Comp"] === selectedLeagues[0])
 
         for (let i = 1; i < selectedLeagues.length; i++)
-            selectedData = selectedData.concat(attk_data.filter(d => d["Comp"] === selectedLeagues[i]));
+            selectedData = selectedData.concat(data.filter(d => d["Comp"] === selectedLeagues[i]));
 
         return selectedData;
     }
 
-    loadAndDisplayData([checkboxData[0]])
+
+    loadAndDisplayData([checkboxData[0]], data, features)
 }
 
 showDashboard();
