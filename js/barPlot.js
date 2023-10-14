@@ -147,7 +147,7 @@ function barPlot(player_data, leaguesArray) {
                     .append("text")
                     .attr("class", "label")
                     .attr("y", d => y(d["Player"]) + y.bandwidth() / 2 + 7)
-                    .attr("x", d => x(d[metric]) - 30)
+                    .attr("x", d => x(d[metric]) - 40)
                     .text(d => parseInt(d[metric]))
                     .style("font-size", "1.5vw")
                     .style("fill", "white")
