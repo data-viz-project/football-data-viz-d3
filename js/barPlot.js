@@ -3,7 +3,7 @@ var margin = {
     top: 15,
     right: 25,
     bottom: 15,
-    left: 140
+    left: 150
 };
 
 var currentWidth = parseInt(d3.select('#barPlot').style('width'), 10)

@@ -77,7 +77,7 @@ async function showDashboard() {
 
     playerTypeSelect
         .selectAll("option")
-        .data(["Forward", "Midfielder", "Defender"])
+        .data(["Forward", "Midfielder"]) // "Defender"
         .enter()
         .append("option")
         .attr("value", d => d)

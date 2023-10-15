@@ -138,6 +138,14 @@ h1 {
     margin: 7px;
 }
 
+#pick-position {
+    color: #36454F;
+    background-color: #f0f0f0;
+    border: 1px solid;
+    padding: 0.2em 0.2em 0.2em;
+    width: 6.5vw;
+}
+
 .tooltip {
     position: absolute;
     pointer-events: none;
