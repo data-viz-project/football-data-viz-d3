@@ -20,6 +20,16 @@ var data = await d3.csv('../data/dataset-preproc/forward.csv', data => {
 var features = ["Goals", "Shots", "SoT", "G/Sh", "G/SoT", "ShoDist", "GCA", "SCA", "Off", "PKwon", "ScaDrib", "Assists",
     "ScaPassLive", "Car3rd", "ScaFld", "Carries", "CarTotDist", "CarPrgDist", 'CPA', "CarMis", "CarDis"]
 
+const playerTypeSelect = d3.select("#pick-position");
+
+playerTypeSelect
+    .selectAll("option")
+    .data(["Forward", "Midfielder"]) // "Defender"
+    .enter()
+    .append("option")
+    .attr("value", d => d)
+    .text(d => d);
+
 
 async function showDashboard() {
     // sidebar interaction
@@ -49,13 +59,13 @@ async function showDashboard() {
                     .style("border", "4px solid #ccc")
                     .style("margin", "5px"); // Aggiungi margine al gruppo
 
-                const label = group.append("label") // Aggiungi una label al gruppo
+                group.append("label") // Aggiungi una label al gruppo
                     .attr("for", d => "checkbox-" + d) // Associa la label alla checkbox tramite l'attributo "for"
                     .text(d => d) // Il testo della label è il valore d
                     .style("color", "rgb(128, 128, 128)")
                     .style("padding", "10px");
 
-                const checkbox = group.append("input") // Aggiungi la checkbox al gruppo
+                group.append("input") // Aggiungi la checkbox al gruppo
                     .attr("type", "checkbox")
                     .attr("class", "checkbox")
                     .attr("value", d => d)
@@ -64,24 +74,15 @@ async function showDashboard() {
                         d3.selectAll(".checkbox").each(function (d) {
                             if (d3.select(this).property("checked")) {
                                 selectedLeagues.add(d);
-                                loadAndDisplayData(selectedLeagues, data, features);
+                                loadAndDisplayData(selectedLeagues, data, features, playerTypeSelect.property("value"));
                             } else {
                                 selectedLeagues.delete(d);
-                                loadAndDisplayData(selectedLeagues, data, features);
+                                loadAndDisplayData(selectedLeagues, data, features, playerTypeSelect.property("value"));
                             }
                         });
                     });
             }
         );
-    const playerTypeSelect = d3.select("#pick-position");
-
-    playerTypeSelect
-        .selectAll("option")
-        .data(["Forward", "Midfielder"]) // "Defender"
-        .enter()
-        .append("option")
-        .attr("value", d => d)
-        .text(d => d);
 
     playerTypeSelect.on("change", async function (d, event) {
         if (this.value.toLowerCase() === "forward")
@@ -107,22 +108,18 @@ async function showDashboard() {
             return data;
         });
 
-        console.log(data)
-
-        loadAndDisplayData(selectedLeagues, data, features);
+        loadAndDisplayData(selectedLeagues, data, features, this.value);
     });
 
 
 
-    async function loadAndDisplayData(leagueSet, data, features) {
+    async function loadAndDisplayData(leagueSet, data, features, playerPos) {
         const leaguesArray = Array.from(leagueSet);
 
         let selectedData = await loadSelectedData(leaguesArray, data);
 
-        console.log(features)
-
         scatterPlot(selectedData, acronyms, features);
-        barPlot(selectedData, leaguesArray);
+        barPlot(selectedData, leaguesArray, playerPos);
     }
 
     async function loadSelectedData(selectedLeagues, data) {
@@ -135,7 +132,7 @@ async function showDashboard() {
     }
 
 
-    loadAndDisplayData([checkboxData[0]], data, features)
+    loadAndDisplayData([checkboxData[0]], data, features, "Forward")
 }
 
 showDashboard();

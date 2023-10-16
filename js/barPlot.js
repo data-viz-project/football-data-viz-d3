@@ -15,36 +15,41 @@ var width = currentWidth - margin.left - margin.right,
 var backgroundButtonColor = "#f0f0f0"
 var buttonColor = "#36454F"
 
-function barPlot(player_data, leaguesArray) {
-    d3.select("#showGoals")
+function barPlot(player_data, leaguesArray, playerPos) {
+    d3.select("#showFeature1")
+        .text("Goals")
         .style("background-color", backgroundButtonColor)
         .style("color", buttonColor)
         .style("border", "1px solid")
         .style("padding", "0.4em 0.4em 0.4em")
         .on("click", () => {
-            d3.select("#showAssists")
+            d3.select("#showFeature2")
                 .style("background-color", backgroundButtonColor)
                 .style("color", buttonColor)
 
-            d3.select("#showGoals")
+            d3.select("#showFeature1")
                 .style("background-color", buttonColor)
                 .style("color", backgroundButtonColor)
+
             updateChart("Goals", player_data);
         });
 
-    d3.select("#showAssists")
+
+    d3.select("#showFeature2")
+        .text("Assists")
         .style("background-color", backgroundButtonColor)
         .style("color", buttonColor)
         .style("border", "1px solid")
         .style("padding", "0.4em 0.4em 0.4em")
         .on("click", () => {
-            d3.select("#showGoals")
+            d3.select("#showFeature1")
                 .style("background-color", backgroundButtonColor)
                 .style("color", buttonColor)
 
-            d3.select("#showAssists")
+            d3.select("#showFeature2")
                 .style("background-color", buttonColor)
                 .style("color", backgroundButtonColor)
+
             updateChart("Assists", player_data);
         });
 
@@ -70,7 +75,7 @@ function barPlot(player_data, leaguesArray) {
             .style("margin-top", "0px")
             .style("margin-bottom", "2.5vh")
             .style("font-size", "2vw")
-            .text("Top scorers and assists")
+            .text(`Top ${playerPos}s`)
 
         var colorScale = d3.scaleOrdinal(d3.schemeTableau10);
 
@@ -155,7 +160,7 @@ function barPlot(player_data, leaguesArray) {
             });
     }
 
-    d3.select("#showGoals").dispatch("click"); // Goals at the startup'll be clicked
+    d3.select("#showFeature1").dispatch("click"); // Goals at the startup'll be clicked
     updateChart("Goals", player_data);
 }
 export { barPlot }
