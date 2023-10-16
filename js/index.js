@@ -20,6 +20,16 @@ var data = await d3.csv('../data/dataset-preproc/forward.csv', data => {
 var features = ["Goals", "Shots", "SoT", "G/Sh", "G/SoT", "ShoDist", "GCA", "SCA", "Off", "PKwon", "ScaDrib", "Assists",
     "ScaPassLive", "Car3rd", "ScaFld", "Carries", "CarTotDist", "CarPrgDist", 'CPA', "CarMis", "CarDis"]
 
+var mouseOverHandler = function () {
+    d3.select(this.parentNode).style("background-color", "#f0f0f0");
+    d3.select(this).style("color", "green");
+};
+
+var mouseOutHandler = function () {
+    d3.select(this.parentNode).style("background-color", "transparent");
+    d3.select(this).style("color", "black");
+};
+
 const playerTypeSelect = d3.select("#pick-position");
 
 playerTypeSelect
@@ -28,8 +38,69 @@ playerTypeSelect
     .enter()
     .append("option")
     .attr("value", d => d)
-    .text(d => d);
+    .text(d => d)
 
+const buttonLeague = d3.selectAll("#showDropMenuLeague")
+    .style("padding", "1.5%")
+    .style("margin", "5%")
+    .style("width", "100%")
+    .style("display", "flex")
+    .style("justify-content", "center")
+    .append("button")
+    .style("width", "100%")
+    .text("Pick The League")
+    .style("font-size", "1.3vw")
+    .style("font-weight", "bold")
+    .style("cursor", "pointer");
+
+buttonLeague
+    .style("background", "none")
+    .style("border", "none")
+    .style("padding", "0")
+    .style("margin", "0");
+
+buttonLeague.on("click", () => {
+    const dropMenu = d3.select("#dropMenuLeague");
+    const displayStyle = dropMenu.style("display");
+    dropMenu.style("display", displayStyle === "block" ? "none" : "block");
+});
+
+buttonLeague.on("mouseover", mouseOverHandler);
+buttonLeague.on("mouseout", mouseOutHandler);
+
+const buttonPosition = d3.selectAll("#showPickPosition")
+    .style("padding", "1.5%")
+    .style("margin", "5%")
+    .style("width", "100%")
+    .style("display", "flex")
+    .style("justify-content", "center")
+    .append("button")
+    .style("width", "100%")
+    .text("And Pick a Position")
+    .style("font-size", "1.3vw")
+    .style("font-weight", "bold")
+    .style("cursor", "pointer");
+
+buttonPosition
+    .style("background", "none")
+    .style("border", "none")
+    .style("padding", "0")
+    .style("margin", "0");
+
+buttonPosition.on("click", () => {
+    const pickPosition = d3.select("#pick-position");
+    const displayStyle = pickPosition.style("display");
+    pickPosition.style("display", displayStyle === "block" ? "none" : "block");
+});
+
+buttonPosition.on("mouseover", mouseOverHandler)
+buttonPosition.on("mouseout", mouseOutHandler)
+
+d3.select("#dropMenuLeague")
+    .style("display", "none")
+
+d3.select("#pick-position")
+    .style("display", "none")
 
 async function showDashboard() {
     // sidebar interaction
@@ -51,6 +122,8 @@ async function showDashboard() {
     var checkboxData = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1"];
 
     d3.select("#dropMenuLeague")
+        .style("display", "none")
+        .style("padding-bottom", "5%")
         .selectAll("div")
         .data(checkboxData)
         .join(
