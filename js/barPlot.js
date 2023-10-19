@@ -89,6 +89,8 @@ function barPlot(player_data, leaguesArray, playerPos) {
             .attr("class", "y axisBarPlot")
             .style("font-size", "1.1vw")
             .style("color", "gray")
+            .transition() // Aggiungi una transizione all'aggiornamento dell'asse y
+            .duration(1000) // Durata dell'animazione
             .call(yAxis);
 
         const bars = svg.selectAll(".bar")
