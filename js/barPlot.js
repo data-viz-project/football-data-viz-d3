@@ -16,43 +16,6 @@ var backgroundButtonColor = "#f0f0f0"
 var buttonColor = "#36454F"
 
 function barPlot(player_data, leaguesArray, playerPos) {
-    d3.select("#showFeature1")
-        .text("Goals")
-        .style("background-color", backgroundButtonColor)
-        .style("color", buttonColor)
-        .style("border", "1px solid")
-        .style("padding", "0.4em 0.4em 0.4em")
-        .on("click", () => {
-            d3.select("#showFeature2")
-                .style("background-color", backgroundButtonColor)
-                .style("color", buttonColor)
-
-            d3.select("#showFeature1")
-                .style("background-color", buttonColor)
-                .style("color", backgroundButtonColor)
-
-            updateChart("Goals", player_data);
-        });
-
-
-    d3.select("#showFeature2")
-        .text("Assists")
-        .style("background-color", backgroundButtonColor)
-        .style("color", buttonColor)
-        .style("border", "1px solid")
-        .style("padding", "0.4em 0.4em 0.4em")
-        .on("click", () => {
-            d3.select("#showFeature1")
-                .style("background-color", backgroundButtonColor)
-                .style("color", buttonColor)
-
-            d3.select("#showFeature2")
-                .style("background-color", buttonColor)
-                .style("color", backgroundButtonColor)
-
-            updateChart("Assists", player_data);
-        });
-
     d3.selectAll(".barPlot").remove();
 
     var svg = d3.select("#barPlot").append("svg")
@@ -121,17 +84,19 @@ function barPlot(player_data, leaguesArray, playerPos) {
         // Make y axis to show bar names
         const yAxis = d3.axisLeft(y).tickSize(0);
 
-        svg.append("g")
+        // Aggiorna l'asse y
+        svg
             .attr("class", "y axisBarPlot")
             .style("font-size", "1.1vw")
             .style("color", "gray")
             .call(yAxis);
 
         const bars = svg.selectAll(".bar")
-            .data(data);
+            .data(data, d => d["Player"]); // Associa i dati tramite la chiave "Player"
 
         // Enter selection
-        const enterBars = bars.enter()
+        const enterBars = bars
+            .enter()
             .append("rect")
             .attr("class", "bar")
             .style("fill", "#0066b2")
@@ -139,26 +104,73 @@ function barPlot(player_data, leaguesArray, playerPos) {
             .attr("height", y.bandwidth())
             .attr("x", 0);
 
-        // Update selection (including transition)
+        // Aggiorna la selezione (inclusa la transizione)
         bars.merge(enterBars)
             .transition()
-            .duration(800)
+            .duration(1000)
             .attr("width", d => x(d[metric]))
-            .on("end", () => {
-                // Add labels after the transition is complete
+            .attr("y", d => y(d["Player"])) // Aggiorna la posizione y delle barre
+            .on("end", function () {
+                // Aggiungi o aggiorna le etichette dopo la transizione delle barre
                 svg.selectAll(".label")
-                    .data(data)
+                    .data(data, d => d["Player"])
                     .enter()
                     .append("text")
                     .attr("class", "label")
                     .attr("y", d => y(d["Player"]) + y.bandwidth() / 2 + 7)
-                    .attr("x", d => x(d[metric]) - 40)
+                    .attr("x", d => {
+                        if (d[metric].toString().length == 1)
+                            return x(d[metric]) - 10;
+                        else return x(d[metric]) - 15;
+                    })
                     .text(d => parseInt(d[metric]))
                     .style("font-size", "1.5vw")
                     .style("fill", "white")
                     .style("font-weight", "bold");
             });
+
+        // Rimuovi le barre e i testi in eccesso
+        bars.exit().remove();
+
     }
+
+    d3
+        .select("#showFeature1")
+        .text("Goals")
+        .style("background-color", backgroundButtonColor)
+        .style("color", buttonColor)
+        .style("border", "1px solid")
+        .style("padding", "0.4em 0.4em 0.4em")
+        .on("click", () => {
+            d3.select("#showFeature1")
+                .style("background-color", buttonColor)
+                .style("color", backgroundButtonColor)
+
+            d3.select("#showFeature2")
+                .style("background-color", backgroundButtonColor)
+                .style("color", buttonColor)
+
+            updateChart("Goals", player_data);
+        });
+
+    d3
+        .select("#showFeature2")
+        .text("Assists")
+        .style("background-color", backgroundButtonColor)
+        .style("color", buttonColor)
+        .style("border", "1px solid")
+        .style("padding", "0.4em 0.4em 0.4em")
+        .on("click", () => {
+            d3.select("#showFeature1")
+                .style("background-color", backgroundButtonColor)
+                .style("color", buttonColor)
+
+            d3.select("#showFeature2")
+                .style("background-color", buttonColor)
+                .style("color", backgroundButtonColor)
+
+            updateChart("Assists", player_data);
+        });
 
     d3.select("#showFeature1").dispatch("click"); // Goals at the startup'll be clicked
     updateChart("Goals", player_data);
