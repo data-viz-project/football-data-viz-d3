@@ -19,10 +19,7 @@ var reverseArray = function reverseArray(arr) {
 }
 
 
-
-
-function scatterPlot(players_data, acronyms, features) {
-    console.log(features)
+function scatterPlot(players_data, acronyms, features, colorScale) {
     var tooltip = d3.select("#scatter-plot")
         .append("div")
         .style("opacity", 0)
@@ -38,13 +35,12 @@ function scatterPlot(players_data, acronyms, features) {
     var mouseover = function (event, d) {
         d3.selectAll(".scatterDots")
             .attr("r", 7)
-            .style("fill", "white")
+            .style("fill", function (d) { return colorScale(d.Comp); })
 
         d3.select(this)
             .transition()
             .duration(200)
-            .attr("r", 12)
-            .style("fill", "green");
+            .attr("r", 15)
 
         tooltip
             .transition()
@@ -56,7 +52,7 @@ function scatterPlot(players_data, acronyms, features) {
         d3.select(this)
             .transition()
             .duration(200)
-            .style("fill", "white")
+            .style("fill", function (d) { return colorScale(d.Comp); })
             .attr("r", 7);
 
         tooltip
@@ -197,7 +193,7 @@ function scatterPlot(players_data, acronyms, features) {
         points = points
             .data(players_data)
             .join("circle")
-            .style("fill", "white")
+            .style("fill", function (d) { return colorScale(d.Comp); })
             .style("stroke", "black")
             .style("class", "scatterDots")
             .on("mouseover", mouseover)
@@ -219,7 +215,7 @@ function scatterPlot(players_data, acronyms, features) {
 
             .attr("cx", function (d) { return x(d[x_label]); })
             .attr("cy", function (d) { return y(d[y_label]); })
-            .attr("r", 7);
+            .attr("r", 7)
     }
 
     d3.select("#search-bar")

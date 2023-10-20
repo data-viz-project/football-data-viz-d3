@@ -1,6 +1,14 @@
 import { scatterPlot } from "./scatterPlot.js";
 import { barPlot } from "./barPlot.js";
 
+var checkboxData = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1"];
+
+// color scale mapped to competition values
+var colorScale = d3
+    .scaleOrdinal()
+    .range(d3.schemeTableau10)
+    .domain(checkboxData);
+
 // map to explain features inside the csv 
 var acronyms = await d3.json("../data/acronyms.json", data => {
     return data;
@@ -119,8 +127,6 @@ async function showDashboard() {
     const selectedLeagues = new Set();
     selectedLeagues.add("Serie A")
 
-    var checkboxData = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1"];
-
     d3.select("#dropMenuLeague")
         .style("display", "none")
         .style("padding-bottom", "5%")
@@ -135,7 +141,8 @@ async function showDashboard() {
                 group.append("label") // Aggiungi una label al gruppo
                     .attr("for", d => "checkbox-" + d) // Associa la label alla checkbox tramite l'attributo "for"
                     .text(d => d) // Il testo della label è il valore d
-                    .style("color", "rgb(128, 128, 128)")
+                    .style("color", function (d) { return colorScale(d); })
+                    .style("font-weight", "bold")
                     .style("padding", "10px");
 
                 group.append("input") // Aggiungi la checkbox al gruppo
@@ -191,8 +198,8 @@ async function showDashboard() {
 
         let selectedData = await loadSelectedData(leaguesArray, data);
 
-        scatterPlot(selectedData, acronyms, features);
-        barPlot(selectedData, leaguesArray, playerPos);
+        scatterPlot(selectedData, acronyms, features, colorScale);
+        barPlot(selectedData, leaguesArray, playerPos, colorScale);
     }
 
     async function loadSelectedData(selectedLeagues, data) {

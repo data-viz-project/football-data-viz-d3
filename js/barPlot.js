@@ -15,7 +15,7 @@ var width = currentWidth - margin.left - margin.right,
 var backgroundButtonColor = "#f0f0f0"
 var buttonColor = "#36454F"
 
-function barPlot(player_data, leaguesArray, playerPos) {
+function barPlot(player_data, leaguesArray, playerPos, colorScale) {
     d3.selectAll(".barPlot").remove();
 
     var svg = d3.select("#barPlot").append("svg")
@@ -40,8 +40,6 @@ function barPlot(player_data, leaguesArray, playerPos) {
             .style("font-size", "2vw")
             .text(`Top ${playerPos}s`)
 
-        var colorScale = d3.scaleOrdinal(d3.schemeTableau10);
-
         var badgeContainer = barPlotTitle.append("div")
             .style("margin-bottom", "15px")
             .attr("class", "badge-container");
@@ -53,7 +51,7 @@ function barPlot(player_data, leaguesArray, playerPos) {
             .attr("class", "badge")
             .text(d => d)
             .style("font-size", "1vw")
-            .style("background-color", (d, i) => colorScale(i))
+            .style("background-color", (d, i) => colorScale(d))
             .style("margin", "5px");
 
         badges.style("color", "white")
