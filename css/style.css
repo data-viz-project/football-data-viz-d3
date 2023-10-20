@@ -98,10 +98,15 @@ h1 {
     margin: 10px;
 }
 
-.search-bar {
+#badge-container-scatter {
+    width: 60%;
+    display: flex;
+}
+
+/* .search-bar {
     display: flex;
     align-items: center;
-}
+} */
 
 .axis-interaction {
     display: flex;

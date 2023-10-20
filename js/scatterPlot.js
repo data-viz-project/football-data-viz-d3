@@ -19,7 +19,7 @@ var reverseArray = function reverseArray(arr) {
 }
 
 
-function scatterPlot(players_data, acronyms, features, colorScale) {
+function scatterPlot(players_data, acronyms, features, colorScale, leaguesArray) {
     var tooltip = d3.select("#scatter-plot")
         .append("div")
         .style("opacity", 0)
@@ -218,20 +218,37 @@ function scatterPlot(players_data, acronyms, features, colorScale) {
             .attr("r", 7)
     }
 
-    d3.select("#search-bar")
-        .on("input", function () {
-            d3.selectAll("circle")
-                .attr("r", 7)
-                .style("fill", "white")
+    // d3.select("#search-bar")
+    //     .on("input", function () {
+    //         d3.selectAll("circle")
+    //             .attr("r", 7)
+    //             .style("fill", "white")
 
-            const searchQuery = this.value.toLowerCase();
+    //         const searchQuery = this.value.toLowerCase();
 
-            d3.select("#" + searchQuery)
-                .transition()
-                .duration(200)
-                .attr("r", 15)
-                .style("fill", "green");
-        });
+    //         d3.select("#" + searchQuery)
+    //             .transition()
+    //             .duration(200)
+    //             .attr("r", 15)
+    //             .style("fill", "green");
+    //     });
+
+    var badgeContainer = d3.select("#badge-container-scatter")
+
+    var badges = badgeContainer.selectAll("span")
+        .data(leaguesArray)
+        .enter()
+        .append("span")
+        .attr("class", "badge")
+        .text(d => d)
+        .style("font-size", "1vw")
+        .style("background-color", (d, i) => colorScale(d))
+        .style("margin", "5px");
+
+    badges.style("color", "white")
+        .style("padding", "4px 8px")
+        .style("text-align", "center")
+        .style("border-radius", "5px");
 
 
 
