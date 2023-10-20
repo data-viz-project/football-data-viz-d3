@@ -189,20 +189,13 @@ function scatterPlot(players_data, acronyms, features, colorScale, leaguesArray)
             .style("border-radius", "5px")
             .style("padding", "10px");
 
-        // Add dots
+        // Aggiungi i punti, nascondili e imposta le coordinate
         points = points
             .data(players_data)
             .join("circle")
             .style("fill", function (d) { return colorScale(d.Comp); })
             .style("stroke", "black")
             .style("class", "scatterDots")
-            .on("mouseover", mouseover)
-            .on("mouseout", mouseout)
-            .on("mousemove", mousemove);
-
-        points
-            .transition()
-            .duration(1000)
             .attr("id", function (d) {
                 // Dividi il nome completo in spazi e prendi il secondo elemento come cognome
                 const nameParts = d.Player.split(" ");
@@ -212,10 +205,17 @@ function scatterPlot(players_data, acronyms, features, colorScale, leaguesArray)
                     return d.Player.toLowerCase(); // Se il nome non ha spazi, usa il nome completo come ID
                 }
             })
-
             .attr("cx", function (d) { return x(d[x_label]); })
             .attr("cy", function (d) { return y(d[y_label]); })
             .attr("r", 7)
+            .style("opacity", 0); // Nascondi i punti inizialmente
+
+        // Aggiungi la transizione per far apparire gradualmente i punti
+        points
+            .transition() // Inizia la transizione
+            .duration(1000) // Durata della transizione in millisecondi
+            .style("opacity", 1); // Gradualmente aumenta l'opacità fino a 1 per far apparire i punti
+
     }
 
     // d3.select("#search-bar")
