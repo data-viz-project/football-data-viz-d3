@@ -1,7 +1,7 @@
-import { scatterPlot } from "./scatterPlot.js";
+import { scatterPlot, updatePoints } from "./scatterPlot.js";
 import { barPlot } from "./barPlot.js";
 
-var checkboxData = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1"];
+const checkboxData = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1"];
 
 // color scale mapped to competition values
 var colorScale = d3
@@ -150,16 +150,18 @@ async function showDashboard() {
                     .attr("class", "checkbox")
                     .attr("value", d => d)
                     .attr("checked", d => d === "Serie A" ? "checked" : null)
-                    .on("change", (event) => {
-                        d3.selectAll(".checkbox").each(function (d) {
-                            if (d3.select(this).property("checked")) {
-                                selectedLeagues.add(d);
-                                loadAndDisplayData(selectedLeagues, data, features, playerTypeSelect.property("value"));
-                            } else {
-                                selectedLeagues.delete(d);
-                                loadAndDisplayData(selectedLeagues, data, features, playerTypeSelect.property("value"));
-                            }
-                        });
+                    .on("change", async (event) => {
+                        const clickedCheckbox = d3.select(event.target);
+
+                        if (clickedCheckbox.property("checked")) {
+                            selectedLeagues.add(clickedCheckbox.datum());
+                        } else {
+                            selectedLeagues.delete(clickedCheckbox.datum());
+                        }
+
+                        let selectedData = await loadSelectedData(Array.from(selectedLeagues), data);
+                        updatePoints(selectedData);
+                        barPlot(selectedData, Array.from(selectedLeagues), playerTypeSelect.property("value"), colorScale);
                     });
             }
         );
@@ -191,14 +193,12 @@ async function showDashboard() {
         loadAndDisplayData(selectedLeagues, data, features, this.value);
     });
 
-
-
     async function loadAndDisplayData(leagueSet, data, features, playerPos) {
         const leaguesArray = Array.from(leagueSet);
 
         let selectedData = await loadSelectedData(leaguesArray, data);
 
-        scatterPlot(selectedData, acronyms, features, colorScale, leaguesArray);
+        scatterPlot(selectedData, acronyms, features, leaguesArray, data);
         barPlot(selectedData, leaguesArray, playerPos, colorScale);
     }
 
@@ -211,8 +211,7 @@ async function showDashboard() {
         return selectedData;
     }
 
-
-    loadAndDisplayData([checkboxData[0]], data, features, "Forward")
+    loadAndDisplayData([checkboxData[0]], data, features, "Forward", data)
 }
 
 showDashboard();
