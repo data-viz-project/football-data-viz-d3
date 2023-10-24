@@ -22,7 +22,7 @@ var y_label = "Assists"
 var selectedData;
 
 var initialStrokeWidth = 1.7
-var initialRadius = 6
+var initialRadius = 7
 
 const dropMenuX = d3.select("#x-axis");
 const dropMenuY = d3.select("#y-axis");
@@ -51,15 +51,6 @@ var calculateMinMaxValue = function (feature, data) {
     });
     return minMax;
 };
-
-
-var reverseArray = function reverseArray(arr) {
-    var reversed = [];
-    for (var i = arr.length - 1; i >= 0; i--) {
-        reversed.push(arr[i]);
-    }
-    return reversed;
-}
 
 var mouseover = function (event, d) {
     d3.select(".tooltip")
@@ -128,6 +119,11 @@ var updatePoints = function updatePoints(data) {
         .select(".group")
         .selectAll("circle")
 
+    points
+        .data(selectedData)
+        .exit()
+        .remove();
+
     // Add new points to the group
     var newPoints = d3
         .select(".group")
@@ -142,12 +138,10 @@ var updatePoints = function updatePoints(data) {
         .style("stroke-width", initialStrokeWidth)
         .style("r", initialRadius)
         .style("cursor", "pointer")
-        .style("class", "scatterDots")
         .on("mouseover", mouseover)
         .on("mouseout", mouseout)
         .on("mousemove", mousemove)
         .on("click", function (d) {
-            console.log(d3.select(this).style("fill"));
             if (d3.select(this).style("fill") == "yellow") {
                 d3.select(this).style("fill", function (d) { return colorScale(d.Comp); })
                 d3.select(this).style("stroke", "black")
@@ -161,25 +155,25 @@ var updatePoints = function updatePoints(data) {
     // Merge the new points with the existing points and apply transitions
     points = newPoints.merge(points)
         .transition()
-        .duration(1000)
+        .duration(700)
         .attr("id", getPointId)
         .attr("cx", function (d) { return x(d[x_label]); })
         .attr("cy", function (d) { return y(d[y_label]); })
-        .attr("r", 7);
+        .attr("r", initialRadius);
 }
 
 
-function scatterPlot(data, acronyms, features, leaguesArray, allData) {
-    if (features.indexOf(x_label) == -1)
+function scatterPlot(data, acronyms, features, leaguesArray, allData, playerPos) {
+    if (playerPos === "Defender") {
+        x_label = "AerWon"
+        y_label = "Blocks"
+    }
+    else {
         x_label = "Goals"
-    else
-        x_label = x_label
-
-    if (features.indexOf(y_label) == -1)
         y_label = "Assists"
-    else
-        y_label = y_label
+    }
 
+    console.log("x_label: " + x_label + " y_label: " + y_label)
 
     updateData(data)
 
@@ -291,7 +285,14 @@ function scatterPlot(data, acronyms, features, leaguesArray, allData) {
         .append("option")
         .attr("value", d => d)
         .text(d => d)
-        .property("selected", function (d) { return d === "Goals"; });
+        .property("selected", function (d) {
+            // for Forwards and Midfielders
+            if (features.includes("Goals"))
+                return d === "Goals"
+            // else for defenders
+            else
+                return d === "AerWon"
+        });
 
     dropMenuX.on('change', function (event) {
         x_label = event.target.value
@@ -306,7 +307,14 @@ function scatterPlot(data, acronyms, features, leaguesArray, allData) {
         .append("option")
         .attr("value", d => d)
         .text(d => d)
-        .property("selected", function (d) { return d === "Assists"; });
+        .property("selected", function (d) {
+            // for Forwards and Midfielders
+            if (features.includes("Assists"))
+                return d === "Assists"
+            // else for defenders
+            else
+                return d === "Blocks"
+        });
 
     dropMenuY.on('change', function (event) {
         x_label = dropMenuX.property('value')

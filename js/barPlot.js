@@ -15,7 +15,23 @@ var width = currentWidth - margin.left - margin.right,
 var backgroundButtonColor = "#f0f0f0"
 var buttonColor = "#36454F"
 
-function barPlot(player_data, leaguesArray, playerPos, colorScale) {
+var feature1 = "Goals"
+var feature2 = "Assists"
+
+function barPlot(player_data, leaguesArray, playerPos, colorScale, features) {
+    if (playerPos === "Forward") {
+        feature1 = "Goals"
+        feature2 = "Assists"
+    }
+    else if (playerPos === "Midfielder") {
+        feature1 = "Goals"
+        feature2 = "SCA"
+    }
+    else {
+        feature1 = "AerWon"
+        feature2 = "Blocks"
+    }
+
     d3.selectAll(".barPlot").remove();
 
     var svg = d3.select("#barPlot").append("svg")
@@ -134,9 +150,10 @@ function barPlot(player_data, leaguesArray, playerPos, colorScale) {
 
     }
 
+
     d3
         .select("#showFeature1")
-        .text("Goals")
+        .text(feature1)
         .style("background-color", backgroundButtonColor)
         .style("color", buttonColor)
         .style("border", "1px solid")
@@ -150,12 +167,12 @@ function barPlot(player_data, leaguesArray, playerPos, colorScale) {
                 .style("background-color", backgroundButtonColor)
                 .style("color", buttonColor)
 
-            updateChart("Goals", player_data);
+            updateChart(feature1, player_data);
         });
 
     d3
         .select("#showFeature2")
-        .text("Assists")
+        .text(feature2)
         .style("background-color", backgroundButtonColor)
         .style("color", buttonColor)
         .style("border", "1px solid")
@@ -169,10 +186,10 @@ function barPlot(player_data, leaguesArray, playerPos, colorScale) {
                 .style("background-color", buttonColor)
                 .style("color", backgroundButtonColor)
 
-            updateChart("Assists", player_data);
+            updateChart(feature2, player_data);
         });
 
     d3.select("#showFeature1").dispatch("click"); // Goals at the startup'll be clicked
-    updateChart("Goals", player_data);
+    updateChart(feature1, player_data);
 }
 export { barPlot }

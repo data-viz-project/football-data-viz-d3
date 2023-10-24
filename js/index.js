@@ -25,6 +25,8 @@ var data = await d3.csv('../data/dataset-preproc/forward.csv', data => {
     return data;
 });
 
+var chosenRole = "forward"
+
 var features = ["Goals", "Shots", "SoT", "G/Sh", "G/SoT", "ShoDist", "GCA", "SCA", "Off", "PKwon", "ScaDrib", "Assists",
     "ScaPassLive", "Car3rd", "ScaFld", "Carries", "CarTotDist", "CarPrgDist", 'CPA', "CarMis", "CarDis"]
 
@@ -42,7 +44,7 @@ const playerTypeSelect = d3.select("#pick-position");
 
 playerTypeSelect
     .selectAll("option")
-    .data(["Forward", "Midfielder"]) // "Defender"
+    .data(["Forward", "Midfielder", "Defender"])
     .enter()
     .append("option")
     .attr("value", d => d)
@@ -161,16 +163,17 @@ async function showDashboard() {
 
                         let selectedData = await loadSelectedData(Array.from(selectedLeagues), data);
                         updatePoints(selectedData);
-                        barPlot(selectedData, Array.from(selectedLeagues), playerTypeSelect.property("value"), colorScale);
+                        barPlot(selectedData, Array.from(selectedLeagues), playerTypeSelect.property("value"), colorScale, features, chosenRole);
                     });
             }
         );
 
     playerTypeSelect.on("change", async function (d, event) {
-        if (this.value.toLowerCase() === "forward")
-            features = ["Goals", "Shots", "SoT", "G/Sh", "G/SoT", "ShoDist", "GCA", "SCA", "Off", "PKwon", "ScaDrib", "Assists",
+        chosenRole = this.value.toLowerCase()
+        if (chosenRole === "forward")
+            features = ["Goals", "Assists", "SoT", "G/Sh", "G/SoT", "ShoDist", "GCA", "SCA", "Off", "PKwon", "ScaDrib", "Shots",
                 "ScaPassLive", "Car3rd", "ScaFld", "Carries", "CarTotDist", "CarPrgDist", 'CPA', "CarMis", "CarDis"]
-        else if (this.value.toLowerCase() === "midfielder")
+        else if (chosenRole === "midfielder")
             features = ["Goals", "PasTotCmp", "PasTotCmp%", "PasTotDist", "PasTotPrgDist", "Assists", "PasAss", "Pas3rd", "Crs", "PasCmp",
                 "PasOff", "PasBlocks", "SCA", "ScaPassLive", "ScaPassDead", "ScaDrib", "ScaSh", "ScaFld", "GCA", "GcaPassLive",
                 "GcaPassDead", "GcaDrib", "GcaSh", "GcaFld", "Tkl", "TklWon", "TklDef3rd", "TklMid3rd", "TklAtt3rd", "TklDri",
@@ -198,8 +201,8 @@ async function showDashboard() {
 
         let selectedData = await loadSelectedData(leaguesArray, data);
 
-        scatterPlot(selectedData, acronyms, features, leaguesArray, data);
-        barPlot(selectedData, leaguesArray, playerPos, colorScale);
+        scatterPlot(selectedData, acronyms, features, leaguesArray, data, playerPos);
+        barPlot(selectedData, leaguesArray, playerPos, colorScale, features);
     }
 
     async function loadSelectedData(selectedLeagues, data) {
@@ -211,7 +214,7 @@ async function showDashboard() {
         return selectedData;
     }
 
-    loadAndDisplayData([checkboxData[0]], data, features, "Forward", data)
+    loadAndDisplayData([checkboxData[0]], data, features, "Forward")
 }
 
 showDashboard();
