@@ -98,6 +98,17 @@ var mousemove = function (event, d) {
         .html('<img src="' + d["PlayerFaceUrl"] + '" width="50" height="50"/>')
 }
 
+var dotsOnClick = function (d) {
+    if (d3.select(this).style("fill") == "yellow") {
+        d3.select(this).style("fill", function (d) { return colorScale(d.Comp); })
+        d3.select(this).style("stroke", "black")
+    }
+    else {
+        d3.select(this).style("fill", "yellow")
+        d3.select(this).style("stroke", function (d) { return colorScale(d.Comp); })
+    }
+}
+
 var getPointId = function (d) {
     // Dividi il nome completo in spazi e prendi il secondo elemento come cognome
     const nameParts = d.Player.split(" ");
@@ -112,17 +123,21 @@ var updateData = function updateData(data) {
     selectedData = data
 }
 
+var deletePoints = function (data, uncheckedValue) {
+    let points = d3.selectAll("." + uncheckedValue.toLowerCase().replaceAll(" ", ""));
+
+    points.transition().duration(500).style("opacity", 0).remove();
+
+    updateData(data);
+}
+
+
 var updatePoints = function updatePoints(data) {
     updateData(data)
 
     let points = d3
         .select(".group")
         .selectAll("circle")
-
-    points
-        .data(selectedData)
-        .exit()
-        .remove();
 
     // Add new points to the group
     var newPoints = d3
@@ -133,6 +148,7 @@ var updatePoints = function updatePoints(data) {
         .append("circle")
         .attr("cx", function (d) { return width / 2 })
         .attr("cy", function (d) { return height / 2 })
+        .attr("class", function (d) { return d.Comp.toLowerCase().replaceAll(" ", "") })
         .style("fill", function (d) { return colorScale(d.Comp); })
         .style("stroke", "black")
         .style("stroke-width", initialStrokeWidth)
@@ -324,4 +340,4 @@ function scatterPlot(data, acronyms, features, leaguesArray, allData, playerPos)
 
     drawAxis();
 }
-export { scatterPlot, updatePoints };
+export { scatterPlot, updatePoints, deletePoints };

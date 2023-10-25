@@ -1,4 +1,4 @@
-import { scatterPlot, updatePoints } from "./scatterPlot.js";
+import { scatterPlot, updatePoints, deletePoints } from "./scatterPlot.js";
 import { barPlot } from "./barPlot.js";
 
 const checkboxData = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1"];
@@ -157,13 +157,16 @@ async function showDashboard() {
 
                         if (clickedCheckbox.property("checked")) {
                             selectedLeagues.add(clickedCheckbox.datum());
+                            let selectedData = await loadSelectedData(Array.from(selectedLeagues), data);
+                            updatePoints(selectedData);
+                            barPlot(selectedData, Array.from(selectedLeagues), playerTypeSelect.property("value"), colorScale, features, chosenRole);
                         } else {
                             selectedLeagues.delete(clickedCheckbox.datum());
+                            let selectedData = await loadSelectedData(Array.from(selectedLeagues), data);
+                            deletePoints(selectedData, event.target.value);
+                            barPlot(selectedData, Array.from(selectedLeagues), playerTypeSelect.property("value"), colorScale, features, chosenRole);
                         }
 
-                        let selectedData = await loadSelectedData(Array.from(selectedLeagues), data);
-                        updatePoints(selectedData);
-                        barPlot(selectedData, Array.from(selectedLeagues), playerTypeSelect.property("value"), colorScale, features, chosenRole);
                     });
             }
         );
