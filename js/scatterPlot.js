@@ -146,9 +146,10 @@ var updatePoints = function updatePoints(data) {
         .data(selectedData)
         .enter()
         .append("circle")
-        .attr("cx", function (d) { return width / 2 })
-        .attr("cy", function (d) { return height / 2 })
+        .attr("cx", function (d) { return x(d[x_label]); })
+        .attr("cy", function (d) { return y(d[y_label]); })
         .attr("class", function (d) { return d.Comp.toLowerCase().replaceAll(" ", "") })
+        .attr("id", getPointId)
         .style("fill", function (d) { return colorScale(d.Comp); })
         .style("stroke", "black")
         .style("stroke-width", initialStrokeWidth)
@@ -157,25 +158,16 @@ var updatePoints = function updatePoints(data) {
         .on("mouseover", mouseover)
         .on("mouseout", mouseout)
         .on("mousemove", mousemove)
-        .on("click", function (d) {
-            if (d3.select(this).style("fill") == "yellow") {
-                d3.select(this).style("fill", function (d) { return colorScale(d.Comp); })
-                d3.select(this).style("stroke", "black")
-            }
-            else {
-                d3.select(this).style("fill", "yellow")
-                d3.select(this).style("stroke", function (d) { return colorScale(d.Comp); })
-            }
-        })
+        .on("click", dotsOnClick)
+        .style("opacity", 0)
 
     // Merge the new points with the existing points and apply transitions
     points = newPoints.merge(points)
         .transition()
         .duration(700)
-        .attr("id", getPointId)
         .attr("cx", function (d) { return x(d[x_label]); })
         .attr("cy", function (d) { return y(d[y_label]); })
-        .attr("r", initialRadius);
+        .style("opacity", 1);
 }
 
 
@@ -188,8 +180,6 @@ function scatterPlot(data, acronyms, features, leaguesArray, allData, playerPos)
         x_label = "Goals"
         y_label = "Assists"
     }
-
-    console.log("x_label: " + x_label + " y_label: " + y_label)
 
     updateData(data)
 
