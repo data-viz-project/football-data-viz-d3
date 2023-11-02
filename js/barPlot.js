@@ -18,9 +18,20 @@ var buttonColor = "#36454F"
 var feature1 = "Goals"
 var feature2 = "Assists"
 
+var svg;
+var yAxis;
+
+var x = d3.scaleLinear()
+    .range([0, width])
+
+var y = d3.scaleBand()
+    .range([0, height])
+    .padding(0.15)
+
 var colorScale;
 var metric;
 var leaguesArray;
+var data;
 
 var updateColorScale = function updateColorScale(cScale) {
     colorScale = cScale
@@ -34,13 +45,15 @@ var updateLeaguesArray = function updateLeaguesArray(l) {
     leaguesArray = l
 }
 
+var upadateData = function upadateData(d) {
+    data = d
+}
+
 var updateChart = function updateChart(leaguesList, p_data) {
-    updateLeaguesArray(leaguesList);
+    updateLeaguesArray(leaguesList)
+    upadateData(p_data)
 
-    const svg = d3.select(".barPlot");
-
-    svg.selectAll(".axisBarPlot").remove(); // remove old axis
-    svg.selectAll(".label").remove(); // remove old labels
+    svg.selectAll(".label").remove();
     d3.select(".badge-container").remove();
 
     var badgeContainer = d3.select(".bar-plot-title")
@@ -63,43 +76,32 @@ var updateChart = function updateChart(leaguesList, p_data) {
         .style("text-align", "center")
         .style("border-radius", "5px");
 
-    // deep copy of player_data obj
-    var data = JSON.parse(JSON.stringify(p_data));
+    // deep copy of data obj
+    var data_mult_90 = JSON.parse(JSON.stringify(data));
 
-    for (var i = 0; i < data.length; i++) {
-        data[i][metric] = Math.round(data[i][metric] * data[i]["90s"]);
+    for (var i = 0; i < data_mult_90.length; i++) {
+        data_mult_90[i][metric] = Math.round(data_mult_90[i][metric] * data_mult_90[i]["90s"]);
     }
 
-    data = data.sort((a, b) => b[metric] - a[metric]).slice(0, 15);
+    data_mult_90 = data_mult_90.sort((a, b) => b[metric] - a[metric]).slice(0, 15);
 
-    const x = d3.scaleLinear()
-        .domain([0, Math.max(...data.map(d => d[metric]))])
-        .range([0, width]);
+    x.domain([0, Math.max(...data_mult_90.map(d => d[metric]))])
 
-    const y = d3.scaleBand()
-        .domain(data.map(d => d["Player"]))
-        .range([0, height])
-        .padding(0.15);
+    y.domain(data_mult_90.map(d => d["Player"]))
 
-    const yAxis = d3.axisLeft(y).tickSize(0);
-
-    svg
-        .attr("class", "y axisBarPlot")
-        .style("font-size", "1.1vw")
-        .style("color", "gray")
+    yAxis
         .transition()
         .duration(1000)
-        .call(yAxis);
+        .call(d3.axisLeft(y).tickSize(0))
 
-    const bars = svg.selectAll(".bar")
-        .data(data, d => d["Player"]);
-
-    bars.exit().remove(); // Rimuovi le vecchie barre
+    const bars = d3.select(".group-bar")
+        .selectAll(".bars")
+        .data(data_mult_90, d => d["Player"]);
 
     const enterBars = bars
         .enter()
         .append("rect")
-        .attr("class", "bar")
+        .attr("class", "bars")
         .style("fill", "#0066b2")
         .attr("y", d => y(d["Player"]))
         .attr("height", y.bandwidth())
@@ -109,24 +111,29 @@ var updateChart = function updateChart(leaguesList, p_data) {
         .transition()
         .duration(1000)
         .attr("width", d => x(d[metric]))
-        .attr("y", d => y(d["Player"]));
+        .attr("y", d => y(d["Player"]))
+        .on("end", function () {
+            svg.selectAll(".label")
+                .data(data_mult_90, d => d["Player"])
+                .enter()
+                .append("text")
+                .attr("class", "label")
+                .attr("y", d => y(d["Player"]) + y.bandwidth() / 2 + 10)
+                .attr("x", d => {
+                    if (d[metric].toString().length == 1)
+                        return x(d[metric]) - 20;
+                    else if (d[metric].toString().length == 2)
+                        return x(d[metric]) - 30;
+                    else
+                        return x(d[metric]) - 45;
+                })
+                .text(d => parseInt(d[metric]))
+                .style("font-size", "1.5vw")
+                .style("fill", "white")
+                .style("font-weight", "bold");
+        });
 
-    // Aggiorna le etichette delle barre
-    svg.selectAll(".label")
-        .data(data, d => d["Player"])
-        .enter()
-        .append("text")
-        .attr("class", "label")
-        .attr("y", d => y(d["Player"]) + y.bandwidth() / 2 + 7)
-        .attr("x", d => {
-            if (d[metric].toString().length == 1)
-                return x(d[metric]) - 10;
-            else return x(d[metric]) - 15;
-        })
-        .text(d => parseInt(d[metric]))
-        .style("font-size", "1.5vw")
-        .style("fill", "white")
-        .style("font-weight", "bold");
+    bars.exit().remove();
 }
 
 function barPlot(player_data, leaguesList, playerPos, cScale, features) {
@@ -145,12 +152,21 @@ function barPlot(player_data, leaguesList, playerPos, cScale, features) {
 
     updateColorScale(cScale)
     updateLeaguesArray(leaguesList)
+    upadateData(player_data)
 
-    d3.select("#barPlot").append("svg")
+    d3.selectAll(".barPlot").remove();
+
+    svg = d3.select("#barPlot").append("svg")
         .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
         .attr("class", "barPlot")
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    yAxis = svg
+        .append("g")
+        .attr("class", "group-bar")
+        .style("font-size", "1.1vw")
+        .style("color", "gray")
 
     d3.select(".bar-plot-title").select("h2").remove();
 
@@ -178,7 +194,7 @@ function barPlot(player_data, leaguesList, playerPos, cScale, features) {
                 .style("color", buttonColor)
 
             updateMetric(feature1)
-            updateChart(leaguesArray, player_data)
+            updateChart(leaguesArray, data)
         });
 
     d3
@@ -198,11 +214,11 @@ function barPlot(player_data, leaguesList, playerPos, cScale, features) {
                 .style("color", backgroundButtonColor)
 
             updateMetric(feature2)
-            updateChart(leaguesArray, player_data)
+            updateChart(leaguesArray, data)
         });
 
-    updateMetric(feature1);
-    updateChart(leaguesArray, player_data)
+    updateMetric(feature1)
+    updateChart(leaguesArray, data)
     d3.select("#showFeature1").dispatch("click"); // Goals at the startup'll be clicked
 }
 export { barPlot, updateChart }

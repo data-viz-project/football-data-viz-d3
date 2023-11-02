@@ -159,14 +159,13 @@ async function showDashboard() {
                             selectedLeagues.add(clickedCheckbox.datum());
                             let selectedData = await loadSelectedData(Array.from(selectedLeagues), data);
                             updatePoints(selectedData);
-                            updateChart(selectedData)
+                            updateChart(selectedLeagues, selectedData)
                         } else {
                             selectedLeagues.delete(clickedCheckbox.datum());
                             let selectedData = await loadSelectedData(Array.from(selectedLeagues), data);
                             deletePoints(selectedData, event.target.value);
-                            barPlot(selectedData, Array.from(selectedLeagues), playerTypeSelect.property("value"), colorScale, features, chosenRole);
+                            updateChart(selectedLeagues, selectedData)
                         }
-
                     });
             }
         );
