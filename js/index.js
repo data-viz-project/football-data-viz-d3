@@ -158,12 +158,12 @@ async function showDashboard() {
                         if (clickedCheckbox.property("checked")) {
                             selectedLeagues.add(clickedCheckbox.datum());
                             let selectedData = await loadSelectedData(Array.from(selectedLeagues), data);
-                            updatePoints(selectedData);
+                            updatePoints(selectedData, selectedLeagues);
                             updateChart(selectedLeagues, selectedData)
                         } else {
                             selectedLeagues.delete(clickedCheckbox.datum());
                             let selectedData = await loadSelectedData(Array.from(selectedLeagues), data);
-                            deletePoints(selectedData, event.target.value);
+                            deletePoints(selectedData, event.target.value, selectedLeagues);
                             updateChart(selectedLeagues, selectedData)
                         }
                     });

@@ -118,20 +118,26 @@ var updateChart = function updateChart(leaguesList, p_data) {
                 .enter()
                 .append("text")
                 .attr("class", "label")
-                .attr("y", d => y(d["Player"]) + y.bandwidth() / 2 + 10)
-                .attr("x", d => {
-                    if (d[metric].toString().length == 1)
-                        return x(d[metric]) - 20;
-                    else if (d[metric].toString().length == 2)
-                        return x(d[metric]) - 30;
-                    else
-                        return x(d[metric]) - 45;
-                })
-                .text(d => parseInt(d[metric]))
-                .style("font-size", "1.5vw")
-                .style("fill", "white")
-                .style("font-weight", "bold");
+                .each(function (d) {
+                    if (!isNaN(y(d["Player"]))) {
+                        d3.select(this)
+                            .attr("y", y(d["Player"]) + y.bandwidth() / 2 + 7)
+                            .attr("x", d => {
+                                if (d[metric].toString().length == 1)
+                                    return x(d[metric]) - 20;
+                                else if (d[metric].toString().length == 2)
+                                    return x(d[metric]) - 30;
+                                else
+                                    return x(d[metric]) - 45;
+                            })
+                            .text(d => parseInt(d[metric]))
+                            .style("font-size", "1.5vw")
+                            .style("fill", "white")
+                            .style("font-weight", "bold");
+                    }
+                });
         });
+
 
     bars.exit().remove();
 }

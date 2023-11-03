@@ -20,30 +20,15 @@ var x_label = "Goals"
 var y_label = "Assists"
 
 var selectedData;
+var selectedLeagues;
 
 var initialStrokeWidth = 1.7
 var initialRadius = 7
 
-const dropMenuX = d3.select("#x-axis");
-const dropMenuY = d3.select("#y-axis");
+const dropMenuX = d3.select("#x-axis")
+const dropMenuY = d3.select("#y-axis")
 
 var badgeContainer = d3.select("#badge-container-scatter")
-var badges = badgeContainer.selectAll("span")
-    .data(checkboxData)
-    .enter()
-    .append("span")
-    .attr("class", "badge")
-    .attr("id", (d, i) => "badge" + d.replace(" ", "-"))
-    .text(d => d)
-    .style("font-size", "1vw")
-    .style("background-color", (d, i) => colorScale(d))
-    .style("margin", "5px")
-    .style("display", "none")
-
-badges.style("color", "white")
-    .style("padding", "4px 8px")
-    .style("text-align", "center")
-    .style("border-radius", "5px");
 
 var calculateMinMaxValue = function (feature, data) {
     let minMax = d3.extent(data, function (d) {
@@ -123,17 +108,44 @@ var updateData = function updateData(data) {
     selectedData = data
 }
 
-var deletePoints = function (data, uncheckedValue) {
-    let points = d3.selectAll("." + uncheckedValue.toLowerCase().replaceAll(" ", ""));
+var updateSelectedLeagues = function updateSelectedLeagues(leaguesArray) {
+    selectedLeagues = leaguesArray
+}
 
+var deletePoints = function (data, uncheckedValue, selectedLeagues) {
+    updateSelectedLeagues(selectedLeagues)
+
+    let points = d3.selectAll("." + uncheckedValue.toLowerCase().replaceAll(" ", ""));
     points.transition().duration(500).style("opacity", 0).remove();
+
+    let badges = d3.selectAll("#" + "badge" + uncheckedValue.replace(" ", "-"));
+    badges.transition().duration(500).style("opacity", 0).remove();
 
     updateData(data);
 }
 
 
-var updatePoints = function updatePoints(data) {
+var updatePoints = function updatePoints(data, leaguesArray) {
     updateData(data)
+    updateSelectedLeagues(leaguesArray)
+
+    d3.select("#badge-container-scatter").selectAll("span").remove()
+
+    var badges = badgeContainer.selectAll("span")
+        .data(selectedLeagues)
+        .enter()
+        .append("span")
+        .attr("class", "badge")
+        .attr("id", (d, i) => "badge" + d.replace(" ", "-"))
+        .text(d => d)
+        .style("font-size", "1.1vw")
+        .style("background-color", (d, i) => colorScale(d))
+        .style("margin", "5px")
+
+    badges.style("color", "white")
+        .style("padding", "4px 8px")
+        .style("text-align", "center")
+        .style("border-radius", "5px")
 
     let points = d3
         .select(".group")
@@ -182,6 +194,7 @@ function scatterPlot(data, acronyms, features, leaguesArray, allData, playerPos)
     }
 
     updateData(data)
+    updateSelectedLeagues(leaguesArray)
 
     d3.select("#scatter-plot")
         .append("div")
@@ -217,7 +230,7 @@ function scatterPlot(data, acronyms, features, leaguesArray, allData, playerPos)
         let minMax = calculateMinMaxValue(x_label, allData)
         x = x.domain([minMax[0], minMax[1]])
 
-        svg.selectAll(".axis").remove();
+        svg.selectAll(".axis").remove()
 
         // Append a new X axis group
         var axis_x = svg.append("g")
@@ -236,7 +249,7 @@ function scatterPlot(data, acronyms, features, leaguesArray, allData, playerPos)
             .transition()
             .duration(1000)
             .attr("opacity", "1")
-            .call(d3.axisBottom(x));
+            .call(d3.axisBottom(x))
 
         // update y-axis domain
         minMax = calculateMinMaxValue(y_label, allData)
@@ -275,10 +288,10 @@ function scatterPlot(data, acronyms, features, leaguesArray, allData, playerPos)
             .attr("x", height / -8)
             .text(acronyms[y_label])
 
-        if (selectedData == null)
-            updatePoints(data)
+        if (selectedData == null || leaguesArray == null)
+            updatePoints(data, leaguesArray)
         else
-            updatePoints(selectedData)
+            updatePoints(selectedData, selectedLeagues)
     }
 
     dropMenuX.selectAll("option").remove();
