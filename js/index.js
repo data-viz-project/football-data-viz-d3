@@ -116,10 +116,14 @@ async function showDashboard() {
     // sidebar interaction
     const toggleSidebar = () => {
         const sidebar = d3.select(".sidebar");
-        if (sidebar.style("display") === "none")
+        if (sidebar.style("display") === "none"){
             sidebar.style("display", "flex")
-        else
+            d3.select(".explain-plot").style("display", "none")
+        }
+        else{
             sidebar.style("display", "none")
+            d3.select(".explain-plot").style("display", "flex")
+        }      
     };
 
     const sidebar = d3.select(".sidebar-toggle");

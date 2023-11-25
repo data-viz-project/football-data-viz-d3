@@ -18,6 +18,20 @@ body {
     padding: 10px;
 }
 
+.dev-team {
+    display: flex;
+    align-items: flex-end;
+    height: 100%;
+    padding-left: 1%;
+}
+
+.dev-team a {
+    color: #36454F;
+    text-decoration: none;
+    font-size: 1.1vw;
+    font-weight: bold;
+}
+
 .sidebar-toggle {
     display: flex;
     padding-left: 10px;
@@ -93,14 +107,35 @@ h1 {
 }
 
 .scatter-plot-interaction {
-    width: 80%;
+    padding-left: 8%;
+    width: 90%;
     display: flex;
-    margin: 10px;
+}
+
+.explain-plot {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    width: 50%;
+    margin: 0 1%;
+}
+
+.explain-plot div {
+    display: flex;
+    flex-direction: column;
+    margin: 0 1%;
+}   
+
+.explain-plot div p{
+    margin: 0;
+    font-size: 1.1vw;
+    font-weight: bold;
 }
 
 #badge-container-scatter {
     width: 60%;
     display: flex;
+    align-items: center;
 }
 
 /* .search-bar {
@@ -118,7 +153,7 @@ h1 {
 }
 
 .axis-interaction .flex-item p {
-    font-size: 1.1vw;
+    font-size: 1vw;
     font-weight: bold;
 }
 
@@ -127,7 +162,7 @@ h1 {
     background-color: #f0f0f0;
     border: 1px solid;
     padding: 0.2em 0.2em 0.2em;
-    width: 6.5vw;
+    width: 7vw;
 }
 
 .data-interaction {
